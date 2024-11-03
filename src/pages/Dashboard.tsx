@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import Users from '../components/Users'; // Import component Users
+import Users from '../components/Users';
 
 const Dashboard: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   
-  // List of tabs based on your APIs
   const tabs = [
     { name: "Users", endpoint: "/users" },
     { name: "Provinces", endpoint: "/province" },
@@ -19,7 +18,6 @@ const Dashboard: React.FC = () => {
 
   const [activeTab, setActiveTab] = useState(tabs[0]);
 
-  // Function to render the active component based on the active tab
   const renderActiveComponent = () => {
     switch (activeTab.endpoint) {
       case '/users':
@@ -47,7 +45,6 @@ const Dashboard: React.FC = () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
       <div className={`bg-white shadow-md w-64 p-4 ${isMenuOpen ? 'block' : 'hidden'} md:block`}>
         <h2 className="text-lg font-bold mb-4">Menu</h2>
         <ul>
@@ -66,9 +63,7 @@ const Dashboard: React.FC = () => {
         </ul>
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 p-6">
-        {/* Header */}
         <header className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-semibold text-gray-700">Wander Viet Nam</h1>
           <button
@@ -80,7 +75,6 @@ const Dashboard: React.FC = () => {
           <div className="text-gray-600">Admin Info</div>
         </header>
 
-        {/* Render the active component based on the selected tab */}
         <div className="bg-white p-4 rounded shadow">
           {renderActiveComponent()}
         </div>

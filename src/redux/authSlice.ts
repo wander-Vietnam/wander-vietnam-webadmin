@@ -5,7 +5,7 @@ import { User } from "../types/User";
 
 interface AuthState {
   isAuthenticated: boolean;
-  user: any;
+  user: User | null; // Thay đổi kiểu cho user
   loading: boolean;
   error: string | null;
   accessToken: string | null;
@@ -24,19 +24,21 @@ interface LoginResponse {
   accessToken: string;
 }
 
-export const login = createAsyncThunk<
-  LoginResponse,
-  { phoneOrEmail: string; password: string }
->("auth/login-admin", async (credentials) => {
-  const apiUrl = process.env.REACT_APP_API_BASE_URL;
-  if (!apiUrl) {
-    throw new Error("API Base URL is not defined");
+export const login = createAsyncThunk<LoginResponse, { phoneOrEmail: string; password: string }>(
+  "auth/login-admin",
+  async (credentials) => {
+    const apiUrl = process.env.REACT_APP_API_BASE_URL;
+    if (!apiUrl) {
+      throw new Error("API Base URL is not defined");
+    }
+    const response = await axios.post(`${apiUrl}/auth/login-admin`, credentials);
+    localStorage.setItem("accessToken", response.data.accessToken);
+    return response.data;
   }
-  const response = await axios.post(`${apiUrl}/auth/login-admin`, credentials);
-  console.log(response);
-  localStorage.setItem("accessToken", response.data.accessToken);
-  return response.data;
-});
+);
+
+// Tạo một axios instance
+
 
 const authSlice = createSlice({
   name: "auth",
@@ -52,8 +54,8 @@ const authSlice = createSlice({
       state.accessToken = action.payload;
     },
     loginSuccess: (state) => {
-        state.isAuthenticated = true; 
-      },
+      state.isAuthenticated = true;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -73,5 +75,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, setAccessToken,loginSuccess } = authSlice.actions;
+
+export const { logout, setAccessToken, loginSuccess } = authSlice.actions;
 export default authSlice.reducer;
