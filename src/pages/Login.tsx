@@ -1,5 +1,6 @@
 // src/pages/Login.tsx
 import React from 'react';
+import logo from '../assets/images/logo.png'; 
 
 interface LoginProps {
   onLogin: () => void;
@@ -9,6 +10,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
       <div className="bg-white p-8 rounded shadow-md w-full max-w-md">
+        <img src={logo} alt="Logo" className="w-24 mx-auto mb-6" />
         <h2 className="text-2xl font-semibold text-gray-700 mb-6 text-center">Đăng nhập</h2>
         <form
           onSubmit={(e) => {

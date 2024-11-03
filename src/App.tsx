@@ -1,6 +1,6 @@
-// src/App.tsx
 import React, { useState } from 'react';
 import Login from './pages/Login';
+import Dashboard from './pages/Dashboard'; // Nhập component Dashboard
 
 const App: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -12,7 +12,7 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {isLoggedIn ? (
-        <h1 className="text-2xl font-semibold text-gray-700 mb-4">Admin Dashboard</h1>
+        <Dashboard /> 
       ) : (
         <Login onLogin={handleLogin} />
       )}
