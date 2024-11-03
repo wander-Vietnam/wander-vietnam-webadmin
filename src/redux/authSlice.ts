@@ -1,11 +1,14 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
+// src/redux/authSlice.ts
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { User } from "../types/User";
 
 interface AuthState {
   isAuthenticated: boolean;
   user: any;
   loading: boolean;
   error: string | null;
+  accessToken: string | null;
 }
 
 const initialState: AuthState = {
@@ -13,21 +16,44 @@ const initialState: AuthState = {
   user: null,
   loading: false,
   error: null,
+  accessToken: null,
 };
 
-export const login = createAsyncThunk('auth/login-admin', async (credentials: { email: string; password: string }) => {
-  const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/auth/login`, credentials);
+interface LoginResponse {
+  user: User;
+  accessToken: string;
+}
+
+export const login = createAsyncThunk<
+  LoginResponse,
+  { phoneOrEmail: string; password: string }
+>("auth/login-admin", async (credentials) => {
+  const apiUrl = process.env.REACT_APP_API_BASE_URL;
+  if (!apiUrl) {
+    throw new Error("API Base URL is not defined");
+  }
+  const response = await axios.post(`${apiUrl}/auth/login-admin`, credentials);
+  console.log(response);
+  localStorage.setItem("accessToken", response.data.accessToken);
   return response.data;
 });
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     logout: (state) => {
       state.isAuthenticated = false;
       state.user = null;
+      state.accessToken = null;
+      localStorage.removeItem("accessToken");
     },
+    setAccessToken: (state, action) => {
+      state.accessToken = action.payload;
+    },
+    loginSuccess: (state) => {
+        state.isAuthenticated = true; 
+      },
   },
   extraReducers: (builder) => {
     builder
@@ -38,15 +64,14 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        state.user = action.payload;
+        state.user = action.payload.user;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Login failed';
+        state.error = action.error.message || "Login failed";
       });
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, setAccessToken,loginSuccess } = authSlice.actions;
 export default authSlice.reducer;
- 

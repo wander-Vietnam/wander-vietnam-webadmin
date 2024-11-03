@@ -1,20 +1,28 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from './redux/store'; 
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard'; // Nhập component Dashboard
+import Dashboard from './pages/Dashboard';
+import { setAccessToken, loginSuccess } from './redux/authSlice'; 
 
 const App: React.FC = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const dispatch = useDispatch();
+  const isLoggedIn = useSelector((state: RootState) => state.auth.isAuthenticated);
 
-  const handleLogin = () => {
-    setIsLoggedIn(true);
-  };
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      dispatch(setAccessToken(token));
+      dispatch(loginSuccess()); // Gọi action loginSuccess để cập nhật trạng thái
+    }
+  }, [dispatch]);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6">
       {isLoggedIn ? (
         <Dashboard /> 
       ) : (
-        <Login onLogin={handleLogin} />
+        <Login />
       )}
     </div>
   );
