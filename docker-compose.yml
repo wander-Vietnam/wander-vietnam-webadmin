@@ -8,3 +8,5 @@
         - '3000:3000'
       volumes:
         - ./.env:/app/.env
+
+        
