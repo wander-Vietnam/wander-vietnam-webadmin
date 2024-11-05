@@ -19,6 +19,5 @@ if (container) {
 } else {
   console.error("Root container not found");
 }
-//rebuild
 // Đo hiệu suất ứng dụng
 reportWebVitals(console.log);
