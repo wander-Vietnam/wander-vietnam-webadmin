@@ -41,6 +41,6 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
            cd webadmin
-           sudo -S docker-compose pull
-           sudo -S docker-compose up -d
-           sudo -S docker image prune -f
+            sudo -S docker-compose pull
+            sudo -S docker-compose up -d
+            sudo -S docker image prune -f
