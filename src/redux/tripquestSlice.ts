@@ -31,7 +31,7 @@ const tripquestSlice = createSlice({
       })
       .addCase(fetchTripquestCards.fulfilled, (state, action) => {
         state.loading = false;
-        state.cards = action.payload; // Cập nhật danh sách thẻ
+        state.cards = action.payload; 
       })
       .addCase(fetchTripquestCards.rejected, (state, action) => {
         state.loading = false;

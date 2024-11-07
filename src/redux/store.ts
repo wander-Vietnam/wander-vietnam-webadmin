@@ -2,12 +2,14 @@ import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
 import tripquestReducer from './tripquestSlice';
 import userReducer from './userSlice';
+import provinceReducer from './provinceSlice';
 import axios from 'axios';
 const store = configureStore({
   reducer: {
     auth: authReducer,
     tripquest: tripquestReducer,
     users: userReducer,
+    provinces: provinceReducer
   },
 });
 const apiClient = axios.create({

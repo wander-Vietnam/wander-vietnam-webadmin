@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Users from '../components/Users';
+import Provinces from '../components/Provinces';
 
 const Dashboard: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -23,7 +24,7 @@ const Dashboard: React.FC = () => {
       case '/users':
         return <Users />;
       case '/province':
-        return <div>Province Management</div>;
+        return <Provinces/>
       case '/tripquest':
         return <div>Trip Quest Management</div>;
       case '/review':
