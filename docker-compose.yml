@@ -1,6 +1,6 @@
   services:
     webadmin:
-      image: trantu30950/webadmin:latest
+      image: tranngoctu512004/webadmin:latest
       build: .
       container_name: webadmin
       restart: always
