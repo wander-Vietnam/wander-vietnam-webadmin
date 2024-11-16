@@ -3,13 +3,17 @@ import authReducer from './authSlice';
 import tripquestReducer from './tripquestSlice';
 import userReducer from './userSlice';
 import provinceReducer from './provinceSlice';
+import imageReducer from './imageSlice';
+import tripTypesReducer from './tripTypesSlice'; 
 import axios from 'axios';
 const store = configureStore({
   reducer: {
     auth: authReducer,
     tripquest: tripquestReducer,
     users: userReducer,
-    provinces: provinceReducer
+    provinces: provinceReducer,
+    images: imageReducer,
+    tripTypes: tripTypesReducer,
   },
 });
 const apiClient = axios.create({
