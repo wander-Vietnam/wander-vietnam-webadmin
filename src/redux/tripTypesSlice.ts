@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { apiClient } from './store';
 interface TripType {
   id: string;
   name: string;
@@ -7,16 +8,16 @@ interface TripType {
 
 interface TripTypesState {
   tripTypes: TripType[];
-  loading: boolean;
-  error: string | null;
+  loadingTriptype: boolean;
+  errorTriptype: string | null;
   creating: boolean;
 }
 
 // Định nghĩa state ban đầu
 const initialState: TripTypesState = {
   tripTypes: [],
-  loading: false,
-  error: null,
+  loadingTriptype: false,
+  errorTriptype: null,
   creating: false,
 };
 
@@ -33,18 +34,24 @@ export const fetchAllTripTypes = createAsyncThunk(
     }
   }
 );
+
 export const createTripType = createAsyncThunk(
-    'tripTypes/create',
-    async (tripTypeData: TripType, { rejectWithValue }) => {
-      try {
-        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/triptype/create`); 
-        return response.data; // Trả về dữ liệu trip type vừa tạo
-      } catch (error: any) {
-        console.error(error);
-        return rejectWithValue(error.response?.data || 'Failed to create trip type');
-      }
+  'tripTypes/create',
+  async (tripTypeName: string, { rejectWithValue }) => {
+    try {
+      // Sử dụng apiClient để gọi API
+      const response = await apiClient.post(
+        '/triptype/create', // Đường dẫn API
+        { tripTypeName }    // Gửi tripTypeName trong payload
+      );
+      return response.data; // Trả về dữ liệu khi tạo thành công
+    } catch (error: any) {
+      console.error(error);
+      // Trả về lỗi nếu có
+      return rejectWithValue(error.response?.data || 'Failed to create trip type');
     }
-  );
+  }
+);
   
 
 // Tạo slice cho tripTypes
@@ -55,20 +62,20 @@ const tripTypesSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchAllTripTypes.pending, (state) => {
-        state.loading = true;
-        state.error = null;
+        state.loadingTriptype = true;
+        state.errorTriptype = null;
       })
       .addCase(fetchAllTripTypes.fulfilled, (state, action) => {
-        state.loading = false;
+        state.loadingTriptype = false;
         state.tripTypes = action.payload; // Cập nhật danh sách tripTypes
       })
       .addCase(fetchAllTripTypes.rejected, (state, action) => {
-        state.loading = false;
-        state.error = action.payload as string || 'Failed to fetch trip types';
+        state.loadingTriptype = false;
+        state.errorTriptype = action.payload as string || 'Failed to fetch trip types';
       })
       .addCase(createTripType.pending, (state) => {
         state.creating = true;
-        state.error = null;
+        state.errorTriptype = null;
       })
       .addCase(createTripType.fulfilled, (state, action) => {
         state.creating = false;
@@ -76,7 +83,7 @@ const tripTypesSlice = createSlice({
       })
       .addCase(createTripType.rejected, (state, action) => {
         state.creating = false;
-        state.error = action.payload as string || 'Failed to create trip type';
+        state.errorTriptype = action.payload as string || 'Failed to create trip type';
       });
   },
 });

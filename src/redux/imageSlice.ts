@@ -19,15 +19,15 @@ export const uploadImage = createAsyncThunk<string[], FormData>(
     async (formData, { rejectWithValue }) => {
       try {
         console.log(formData);
-        const response = await axios.post<string[]>('https://tranngoctu.click/image', formData, {
+        const response = await axios.post<string[]>('https://tranngoctu.click/images', formData, {
           headers: {
             'Content-Type': 'multipart/form-data',
           },
         });
+        console.log("repon",response.data);
         return response.data;
+  
       } catch (error: any) {
-        // Handle errors and return them
-        console.error(error);
         return rejectWithValue(error.response?.data || 'Failed to upload image');
       }
     }
