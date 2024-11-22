@@ -1,6 +1,6 @@
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './authSlice';
-import tripquestReducer from './tripquestSlice';
+import tripquestReducer from './tripquestSlice'
 import userReducer from './userSlice';
 import provinceReducer from './provinceSlice';
 import imageReducer from './imageSlice';

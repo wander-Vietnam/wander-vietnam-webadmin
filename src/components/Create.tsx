@@ -5,11 +5,8 @@ import { RootState } from "../redux/store";
 import { AppDispatch } from "../redux/store";
 import { fetchAllTripTypes, createTripType } from "../redux/tripTypesSlice";
 import CreateTripTypeModal from "./CreateTripTypeModal";
-
-interface CreateProps {
-  closeModal: () => void;
-}
-
+import { CreateProps } from "../types/Create";
+import { createTripquest } from "../redux/tripquestSlice";
 const Create: React.FC<CreateProps> = ({ closeModal }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { imageLinks, loading, error } = useSelector(
@@ -18,51 +15,37 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
   const { tripTypes, loadingTriptype, errorTriptype, creating } = useSelector(
     (state: any) => state.tripTypes
   );
-  const [newTripType, setNewTripType] = useState("");
-  const [isCreating, setIsCreating] = useState(false);
   const [selectedTripType, setSelectedTripType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [tripQuestData, setTripQuestData] = useState<{
     tripQuestName: string;
     description: string;
     imageUrl: string[];
-    highlights: string[];
-    importantDetails: string[];
     price: number;
     isForTeamBuilding: boolean;
     id_TripType: string;
     expectedDuration: string;
     startTime: string;
     endTime: string;
+    importantDetails: string[];
+    highlights: string[];
   }>({
     tripQuestName: "",
     description: "",
     imageUrl: [],
-    highlights: [],
-    importantDetails: [],
     price: 0,
     isForTeamBuilding: false,
     id_TripType: "",
     expectedDuration: "",
     startTime: "",
     endTime: "",
+    importantDetails: [],
+    highlights: [],
   });
 
-  // useEffect(() => {
-  //   if (Array.isArray(imageLinks)) {
-  //     setTripQuestData((prev) => ({
-  //       ...prev,
-  //       imageUrl: imageLinks,
-  //     }));
-  //   }
-  // }, [imageLinks]);
-
-  useEffect(() => {
-    console.log("Updated imageUrl:", tripQuestData.imageUrl);
-  }, [tripQuestData.imageUrl]); // This will log whenever imageUrl is updated
   useEffect(() => {
     dispatch(fetchAllTripTypes());
-    console.log("tripTypes", tripTypes);
   }, [dispatch]);
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -79,7 +62,6 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
 
       dispatch(uploadImage(formData)).then((response) => {
         const uploadedUrls = response.payload as string[];
-        console.log("uploadedUrls", uploadedUrls);
 
         // Check for duplicates before updating state
         setTripQuestData((prev) => {
@@ -108,16 +90,18 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("tripQuestData: ", tripQuestData);
-    closeModal(); // Close modal after form submission
+    dispatch(createTripquest(tripQuestData));
+    closeModal();
   };
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedTripType(event.target.value);
+    const selectedId = event.target.value; // Lấy id từ value
+    setSelectedTripType(selectedId); // Cập nhật trạng thái selectedTripType
+    setTripQuestData((prev) => ({ ...prev, id_TripType: selectedId })); // Cập nhật tripQuestData
   };
-  // Xử lý tạo tripType mới
+
   const handleCreateSuccess = (newTripTypeId: string) => {
-    // Set the selected trip type to the newly created one
     setSelectedTripType(newTripTypeId);
+    setTripQuestData((prev) => ({ ...prev, id_TripType: selectedTripType }));
   };
 
   return (
@@ -182,6 +166,7 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
                 type="file"
                 id="imageUrl"
                 name="imageUrl"
+                multiple
                 onChange={handleImageUpload}
                 className="w-full p-2 border border-gray-300 rounded"
               />
@@ -289,7 +274,7 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
                 >
                   <option value="">Chọn thể loại...</option>
                   {tripTypes.map((type: any) => (
-                    <option key={type.id} value={type.id}>
+                    <option key={type.id} value={type.id_TripType}>
                       {type.tripTypeName}
                     </option>
                   ))}
@@ -310,7 +295,7 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)} // Đóng modal
                 creating={creating} // Truyền trạng thái đang tạo để disable nút khi cần thiết
-                onCreateSuccess={handleCreateSuccess} 
+                onCreateSuccess={handleCreateSuccess}
               />
 
               {/* Thông báo lỗi nếu có */}
@@ -363,7 +348,57 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
                 className="w-full p-2 border border-gray-300 rounded"
               />
             </div>
+            <div className="mb-4">
+              <label
+                htmlFor="importantDetails"
+                className="block text-gray-700 mb-2"
+              >
+                Chi tiết quan trọng
+              </label>
+              <textarea
+                id="importantDetails"
+                name="importantDetails"
+                value={tripQuestData.importantDetails.join(", ")} // Join array values for display
+                onChange={(e) => {
+                  const details = e.target.value
+                    .split(",")
+                    .map((item) => item.trim());
+                  setTripQuestData((prevData) => ({
+                    ...prevData,
+                    importantDetails: details,
+                  }));
+                }}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              <small className="text-gray-500">
+                Nhập các chi tiết quan trọng, cách nhau bằng dấu phẩy.
+              </small>
+            </div>
 
+            {/* Highlights */}
+            <div className="mb-4">
+              <label htmlFor="highlights" className="block text-gray-700 mb-2">
+                Điểm nổi bật
+              </label>
+              <textarea
+                id="highlights"
+                name="highlights"
+                value={tripQuestData.highlights.join(", ")} // Join array values for display
+                onChange={(e) => {
+                  const highlights = e.target.value
+                    .split(",")
+                    .map((item) => item.trim());
+                  setTripQuestData((prevData) => ({
+                    ...prevData,
+                    highlights: highlights,
+                  }));
+                }}
+                className="w-full p-2 border border-gray-300 rounded"
+              />
+              <small className="text-gray-500">
+                Nhập các điểm nổi bật, cách nhau bằng dấu phẩy.
+              </small>
+            </div>
             <div className="flex justify-end space-x-4">
               <button
                 type="button"

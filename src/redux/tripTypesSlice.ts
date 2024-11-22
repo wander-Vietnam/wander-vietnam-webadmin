@@ -1,19 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiClient } from './store';
-interface TripType {
-  id: string;
-  name: string;
-}
+import { apiClient } from './store'; // Đảm bảo apiClient đã được định nghĩa và import đúng
+import { TripTypesState } from '../types/TripType';
 
-interface TripTypesState {
-  tripTypes: TripType[];
-  loadingTriptype: boolean;
-  errorTriptype: string | null;
-  creating: boolean;
-}
-
-// Định nghĩa state ban đầu
 const initialState: TripTypesState = {
   tripTypes: [],
   loadingTriptype: false,
@@ -26,7 +14,7 @@ export const fetchAllTripTypes = createAsyncThunk(
   'tripTypes/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/triptype/get-all`); 
+      const response = await apiClient.get('/triptype/get-all'); // Sử dụng apiClient
       return response.data; // Trả về dữ liệu trip types
     } catch (error: any) {
       console.error(error);
@@ -52,7 +40,6 @@ export const createTripType = createAsyncThunk(
     }
   }
 );
-  
 
 // Tạo slice cho tripTypes
 const tripTypesSlice = createSlice({
@@ -67,7 +54,7 @@ const tripTypesSlice = createSlice({
       })
       .addCase(fetchAllTripTypes.fulfilled, (state, action) => {
         state.loadingTriptype = false;
-        state.tripTypes = action.payload; // Cập nhật danh sách tripTypes
+        state.tripTypes = action.payload;
       })
       .addCase(fetchAllTripTypes.rejected, (state, action) => {
         state.loadingTriptype = false;

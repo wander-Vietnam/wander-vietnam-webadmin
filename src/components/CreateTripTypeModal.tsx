@@ -25,7 +25,6 @@ const CreateTripTypeModal: React.FC<CreateTripTypeModalProps> = ({
             onCreateSuccess(newType.id);  // Truyền id
             onClose();
           })
-          
             .catch((error) => {
               console.error("Error creating trip type", error);
             });
