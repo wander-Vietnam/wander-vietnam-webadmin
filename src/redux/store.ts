@@ -5,6 +5,8 @@ import userReducer from './userSlice';
 import provinceReducer from './provinceSlice';
 import imageReducer from './imageSlice';
 import tripTypesReducer from './tripTypesSlice'; 
+import checkpointReducer from './checkpointSlice'; 
+import cityReducer from './citySlice';
 import axios from 'axios';
 const store = configureStore({
   reducer: {
@@ -14,6 +16,8 @@ const store = configureStore({
     provinces: provinceReducer,
     images: imageReducer,
     tripTypes: tripTypesReducer,
+    checkpoint: checkpointReducer,
+    cities: cityReducer,
   },
 });
 const apiClient = axios.create({
