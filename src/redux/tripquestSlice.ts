@@ -21,6 +21,7 @@ const initialState: TripquestState = {
 // Fetch trip quest cards
 export const fetchTripquestCards = createAsyncThunk('tripquest/fetchCards', async () => {
   const response = await apiClient.get('tripquest/get-all');
+  console.log("response",response)
   return response.data;
 });
 

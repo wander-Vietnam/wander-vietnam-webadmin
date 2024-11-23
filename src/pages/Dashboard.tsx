@@ -51,7 +51,7 @@ const Dashboard: React.FC = () => {
   return (
     <div className="flex min-h-screen bg-gray-100">
       <div
-        className={`bg-white shadow-md w-64 p-4 ${
+        className={`bg-white shadow-md w-64 p-4 fixed top-0 left-0 h-full ${
           isMenuOpen ? "block" : "hidden"
         } md:block`}
       >
@@ -76,7 +76,7 @@ const Dashboard: React.FC = () => {
         </ul>
       </div>
 
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 ml-64"> {/* Thêm margin-left cho nội dung chính để tránh bị che khuất bởi menu */}
         <header className="flex justify-between items-center mb-4">
           <h1 className="text-2xl font-semibold text-gray-700">
             Wander Viet Nam
