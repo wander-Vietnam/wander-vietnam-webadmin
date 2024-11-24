@@ -7,6 +7,7 @@ import imageReducer from './imageSlice';
 import tripTypesReducer from './tripTypesSlice'; 
 import checkpointReducer from './checkpointSlice'; 
 import cityReducer from './citySlice';
+import quizzReducer from './quizzSlice';
 import axios from 'axios';
 const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ const store = configureStore({
     tripTypes: tripTypesReducer,
     checkpoint: checkpointReducer,
     cities: cityReducer,
+    quizz: quizzReducer,
   },
 });
 const apiClient = axios.create({

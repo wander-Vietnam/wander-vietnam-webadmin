@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import { apiClient } from './store'; // Đảm bảo `apiClient` đã được cấu hình
-import { Checkpoint, AllCheckpointsResponse, ICheckPointCreate } from '../types/Checkpoint';
+import { Checkpoint, AllCheckpointsResponse,CheckpointsDetailResponse, ICheckPointCreate, ICheckPointUpdate } from '../types/Checkpoint';
 
 interface CheckpointState {
   checkpoints: Checkpoint[]; // Dữ liệu của API khác
@@ -8,6 +8,8 @@ interface CheckpointState {
   availableCheckpoints: AllCheckpointsResponse[]; // Dữ liệu cho API getAvailableCheckpoints
   loading: boolean;
   error: string | null;
+  fetchById: boolean; 
+  checkpointDetail: CheckpointsDetailResponse | null;
 }
 
 const initialState: CheckpointState = {
@@ -15,7 +17,9 @@ const initialState: CheckpointState = {
   allCheckpoints: [], // State riêng cho dữ liệu getAll
   availableCheckpoints: [], // Thêm state cho dữ liệu available checkpoints
   loading: false,
+  fetchById: false,
   error: null,
+  checkpointDetail: null,
 };
 export const addCheckPoint = createAsyncThunk<
   string, 
@@ -29,6 +33,38 @@ export const addCheckPoint = createAsyncThunk<
       return response.data.id; // Trả về ID của checkpoint mới được tạo
     } catch (error: any) {
       return rejectWithValue(error.response?.data || 'Failed to add checkpoint');
+    }
+  }
+);
+export const updateCheckpoint = createAsyncThunk<
+  Checkpoint,
+  { id: string; checkpointData: ICheckPointUpdate },
+  { rejectValue: string }
+>(
+  'checkpoints/updateCheckpoint',
+  async ({ id, checkpointData }, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.put(`/checkpoints/update/${id}`, checkpointData);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Failed to update checkpoint');
+    }
+  }
+);
+export const fetchCheckpointById = createAsyncThunk<
+CheckpointsDetailResponse,
+  string,
+  { rejectValue: string }
+>(
+  'checkpoints/fetchById',
+  async (id, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.get(`/checkpoints/get-by-id/${id}`);
+      return response.data; // Trả về dữ liệu checkpoint
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || error.message || 'Failed to fetch checkpoint by ID'
+      );
     }
   }
 );
@@ -140,7 +176,33 @@ const checkpointSlice = createSlice({
       .addCase(addCheckPoint.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || 'Failed to add checkpoint';
+      })
+      .addCase(fetchCheckpointById.pending, (state) => {
+        state.fetchById = true;
+        state.error = null;
+      })
+      .addCase(fetchCheckpointById.fulfilled, (state, action) => {
+        state.fetchById = false;
+        state.checkpointDetail = action.payload; // Lưu dữ liệu checkpoint chi tiết
+      })
+      .addCase(fetchCheckpointById.rejected, (state, action) => {
+        state.fetchById = false;
+        state.error = action.payload || 'Failed to fetch checkpoint by ID';
+      })
+      .addCase(updateCheckpoint.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCheckpoint.fulfilled, (state, action) => {
+        state.loading = false;
+        const updatedCheckpoint = action.payload;
+
+      })
+      .addCase(updateCheckpoint.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || 'Failed to update checkpoint';
       });
+      
   }
 });
 
