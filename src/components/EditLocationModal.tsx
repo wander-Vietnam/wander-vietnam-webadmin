@@ -3,6 +3,8 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   fetchCheckpointsByTripquest,
   fetchAvailableCheckpoints,
+  addTripQuestLocation,
+  deleteTripQuestLocation,
 } from "../redux/checkpointSlice";
 import { RootState, AppDispatch } from "../redux/store";
 import AddLocationModal from "./AddLocationModal";
@@ -71,6 +73,39 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
     setIsMiniGameOpen(true);
   };
 
+  const handleAddCheckpoint = async (
+    id_CheckPoint: string,
+    tripQuestId: string
+  ) => {
+    const id_TripQuest = tripQuestId;
+    console.log(id_CheckPoint, tripQuestId);
+    try {
+      await dispatch(
+        addTripQuestLocation({ id_CheckPoint, id_TripQuest })
+      ).unwrap();
+      dispatch(fetchCheckpointsByTripquest(tripQuestId));
+      dispatch(fetchAvailableCheckpoints(tripQuestId));
+    } catch (error) {
+      console.error("Error adding checkpoint:", error);
+    }
+  };
+  const handleDeleteCheckpoint = async (
+    id_CheckPoint: string,
+    tripQuestId: string
+  ) => {
+    const id_TripQuest = tripQuestId;
+    console.log(id_CheckPoint, tripQuestId);
+
+    try {
+      await dispatch(
+        deleteTripQuestLocation({ id_CheckPoint, id_TripQuest })
+      ).unwrap();
+      dispatch(fetchCheckpointsByTripquest(tripQuestId));
+      dispatch(fetchAvailableCheckpoints(tripQuestId));
+    } catch (error) {
+      console.error("Error adding checkpoint:", error);
+    }
+  };
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
@@ -150,6 +185,16 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
                   >
                     Mini Game
                   </button>
+
+                  {/* Nút Xoá */}
+                  <button
+                    onClick={() =>
+                      handleDeleteCheckpoint(checkpoint.id_CheckPoint, tripQuestId)
+                    }
+                    className="text-red-500 hover:underline text-sm"
+                  >
+                    Xoá
+                  </button>
                 </div>
               </div>
             ))}
@@ -202,11 +247,10 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
                     </button>
                   </div>
 
-                  {/* Nút "Thêm vào chuyến đi" ở góc phải dưới */}
                   <button
-                    // onClick={() =>
-                    //   // handleAddToTrip(checkpoint.id_CheckPoint, tripQuestId)
-                    // }
+                    onClick={() =>
+                      handleAddCheckpoint(checkpoint.id_CheckPoint, tripQuestId)
+                    }
                     className="absolute bottom-3 right-3 bg-green-500 text-white px-4 py-2 rounded-md text-sm"
                   >
                     Thêm vào chuyến đi
