@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-
+import { createQuestion } from '../redux/quizzSlice';
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch } from '../redux/store';
+import { IQuestion } from '../types/Province';
 interface AddQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -7,16 +10,7 @@ interface AddQuestionModalProps {
   tripQuestId: string;
 }
 
-interface IQuestion {
-  id_Question: string;
-  questionText: string;
-  questionType: 'multiple_choice' | 'open_answer' | 'true_false' | 'sort';
-  correctAnswers: string[];
-  wrongAnswers: string[];
-  points: number;
-  id_CheckPoint: string;
-  id_TripQuest: string;
-}
+
 
 const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   isOpen,
@@ -24,6 +18,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   checkpointId,
   tripQuestId,
 }) => {
+  const dispatch = useDispatch<AppDispatch>();
   const [questionText, setQuestionText] = useState('');
   const [points, setPoints] = useState(0);
   const [questionType, setQuestionType] = useState<'multiple_choice' | 'open_answer' | 'true_false' | 'sort'>('multiple_choice');
@@ -31,9 +26,8 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   const [wrongAnswers, setWrongAnswers] = useState<string[]>([]);
 
   const onAdd = async () => {
-    // Build the question object
     const newQuestion: IQuestion = {
-      id_Question: 'generated_id', // You might want to generate this dynamically or handle it server-side
+      id_Question: 'generated_id', 
       questionText,
       questionType,
       correctAnswers,
@@ -43,17 +37,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       id_TripQuest: tripQuestId,
     };
 
-    // Call your API function to add the question
-    // Assuming addQuestion is available globally or imported here
     try {
-    //   await addQuestion(newQuestion);
-      console.log('Question added successfully', newQuestion);
+      dispatch(createQuestion(newQuestion));
       onClose();
     } catch (error) {
       console.error('Error adding question:', error);
     }
   };
-
 
   const handleCorrectAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setCorrectAnswers(event.target.value.split(',').map((item) => item.trim()));
@@ -61,6 +51,90 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
   const handleWrongAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setWrongAnswers(event.target.value.split(',').map((item) => item.trim()));
+  };
+
+  const renderAnswerFields = () => {
+    switch (questionType) {
+      case 'multiple_choice':
+        return (
+          <>
+            <div className="mb-4">
+              <label htmlFor="correctAnswers" className="block text-sm font-medium">
+                Câu trả lời đúng (ngăn cách bằng dấu phẩy)
+              </label>
+              <input
+                id="correctAnswers"
+                type="text"
+                value={correctAnswers.join(', ')}
+                onChange={handleCorrectAnswerChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md"
+              />
+            </div>
+
+            <div className="mb-4">
+              <label htmlFor="wrongAnswers" className="block text-sm font-medium">
+                Câu trả lời sai (ngăn cách bằng dấu phẩy)
+              </label>
+              <input
+                id="wrongAnswers"
+                type="text"
+                value={wrongAnswers.join(', ')}
+                onChange={handleWrongAnswerChange}
+                className="mt-1 block w-full border border-gray-300 rounded-md"
+              />
+            </div>
+          </>
+        );
+      case 'open_answer':
+        return (
+          <div className="mb-4">
+            <label htmlFor="correctAnswers" className="block text-sm font-medium">
+              Câu trả lời đúng (để trống nếu không có nhiều câu trả lời)
+            </label>
+            <input
+              id="correctAnswers"
+              type="text"
+              value={correctAnswers.join(', ')}
+              onChange={handleCorrectAnswerChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md"
+            />
+          </div>
+        );
+      case 'true_false':
+        return (
+          <div className="mb-4">
+            <label htmlFor="correctAnswers" className="block text-sm font-medium">
+              Câu trả lời đúng
+            </label>
+            <select
+              id="correctAnswers"
+              value={correctAnswers[0] || ''}
+              onChange={(e) => setCorrectAnswers([e.target.value])}
+              className="mt-1 block w-full border border-gray-300 rounded-md"
+            >
+              <option value="true">True</option>
+              <option value="false">False</option>
+            </select>
+          </div>
+        );
+      case 'sort':
+        return (
+          <div className="mb-4">
+            <label htmlFor="correctAnswers" className="block text-sm font-medium">
+              Câu trả lời đúng (ngăn cách bằng dấu phẩy)
+            </label>
+            <input
+              id="correctAnswers"
+              type="text"
+              value={correctAnswers.join(', ')}
+              onChange={handleCorrectAnswerChange}
+              className="mt-1 block w-full border border-gray-300 rounded-md"
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
   };
 
   if (!isOpen) return null;
@@ -133,31 +207,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           </select>
         </div>
 
-        <div className="mb-4">
-          <label htmlFor="correctAnswers" className="block text-sm font-medium">
-            Câu trả lời đúng (ngăn cách bằng dấu phẩy)
-          </label>
-          <input
-            id="correctAnswers"
-            type="text"
-            value={correctAnswers.join(', ')}
-            onChange={handleCorrectAnswerChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label htmlFor="wrongAnswers" className="block text-sm font-medium">
-            Câu trả lời sai (ngăn cách bằng dấu phẩy)
-          </label>
-          <input
-            id="wrongAnswers"
-            type="text"
-            value={wrongAnswers.join(', ')}
-            onChange={handleWrongAnswerChange}
-            className="mt-1 block w-full border border-gray-300 rounded-md"
-          />
-        </div>
+        {renderAnswerFields()}
 
         <div className="flex justify-end space-x-2">
           <button

@@ -1,6 +1,7 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { apiClient } from './store'; // Assuming apiClient is already configured
+import { createSlice, createAsyncThunk, Dispatch } from "@reduxjs/toolkit";
+import { apiClient } from "./store"; // Assuming apiClient is already configured
 import { Question } from "../types/Checkpoint";
+import { IQuestion } from "../types/Province";
 
 interface QuizzState {
   questions: Question[];
@@ -13,24 +14,37 @@ const initialState: QuizzState = {
   loading: false,
   error: null,
 };
-
-// Thunk to fetch questions based on trip and checkpoint
 export const fetchQuestionsByTripAndCheckpoint = createAsyncThunk<
   Question[], // Return type of the thunk
-  { id_TripQuest: string; id_CheckPoint: string } // Payload type
->(
-  'quizz/fetchByTripAndCheckpoint',
-  async ({ id_TripQuest, id_CheckPoint }) => {
-    const response = await apiClient.post('/questions/by-trip-checkpoint', {
-      id_TripQuest,
-      id_CheckPoint
-    });
-    return response.data; 
-  }
-);
+  { id_TripQuest: string; id_CheckPoint: string }
+>("quizz/fetchByTripAndCheckpoint", async ({ id_TripQuest, id_CheckPoint }) => {
+  const response = await apiClient.post("/questions/by-trip-checkpoint", {
+    id_TripQuest,
+    id_CheckPoint,
+  });
+  return response.data;
+});
+export const createQuestion = (questionData: IQuestion) => {
+  return async (dispatch: Dispatch) => {
+    try {
+      // Gọi API để tạo câu hỏi mới
+      const response = await apiClient.post("/questions/create", questionData);
+
+      // Dispatch hành động thành công
+      dispatch({
+        type: 'CREATE_QUESTION_SUCCESS',
+        payload: response.data,
+      });
+    } catch (error) {
+      dispatch({
+        type: 'CREATE_QUESTION_FAILURE'
+      });
+    }
+  };
+};
 
 const quizzSlice = createSlice({
-  name: 'quizz',
+  name: "quizz",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
@@ -45,7 +59,7 @@ const quizzSlice = createSlice({
       })
       .addCase(fetchQuestionsByTripAndCheckpoint.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch questions';
+        state.error = action.error.message || "Failed to fetch questions";
       });
   },
 });
