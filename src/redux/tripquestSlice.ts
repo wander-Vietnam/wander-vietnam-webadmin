@@ -1,13 +1,13 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import axios from 'axios';
-import { apiClient } from './store';
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import axios from "axios";
+import { apiClient } from "./store";
 
 interface TripquestState {
   cards: any[];
   loading: boolean;
   error: string | null;
-  createLoading: boolean;  // For tracking creation loading state
-  createError: string | null;  // For tracking creation error state
+  createLoading: boolean;
+  createError: string | null;
 }
 
 const initialState: TripquestState = {
@@ -18,32 +18,59 @@ const initialState: TripquestState = {
   createError: null,
 };
 
-// Fetch trip quest cards
-export const fetchTripquestCards = createAsyncThunk('tripquest/fetchCards', async () => {
-  const response = await apiClient.get('tripquest/get-all');
-  console.log("response",response)
-  return response.data;
-});
+export const fetchTripquestCards = createAsyncThunk(
+  "tripquest/fetchCards",
+  async () => {
+    const response = await apiClient.get("tripquest/get-all");
+    console.log("response", response);
+    return response.data;
+  }
+);
 
-// Create a new trip quest
 export const createTripquest = createAsyncThunk(
-  'tripquest/createTripquest',
-  async (tripQuestData: {
-    tripQuestName: string;
-    description: string;
-    imageUrl: string[];
-    price: number;
-    isForTeamBuilding: boolean;
-    id_TripType: string;
-    expectedDuration: string;
-    startTime: string;
-    endTime: string;
-    importantDetails: string[];
-    highlights: string[];
-  }, { rejectWithValue }) => {
+  "tripquest/createTripquest",
+  async (
+    tripQuestData: {
+      tripQuestName: string;
+      description: string;
+      imageUrl: string[];
+      price: number;
+      isForTeamBuilding: boolean;
+      id_TripType: string;
+      expectedDuration: string;
+      startTime: string;
+      endTime: string;
+      importantDetails: string[];
+      highlights: string[];
+    },
+    { rejectWithValue }
+  ) => {
     try {
-      const response = await apiClient.post('tripquest/create-trip-quest', tripQuestData);
-      return response.data;  // Data should include tripQuestId or any other success details
+      console.log("tripQuestData", tripQuestData);
+      const response = await apiClient.post(
+        "tripquest/create-trip-quest",
+        tripQuestData
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
+
+export const updateTripquestStatus = createAsyncThunk(
+  "tripquest/updateStatus",
+  async (
+    updateData: { id_TripQuest: string; isActive: boolean },
+    { rejectWithValue }
+  ) => {
+    console.log("updateTripQuestStatus", updateData)
+    try {
+      const response = await apiClient.post(
+        "tripquest/update-tripquest-status",
+        updateData
+      );
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data || error.message);
     }
@@ -51,11 +78,10 @@ export const createTripquest = createAsyncThunk(
 );
 
 const tripquestSlice = createSlice({
-  name: 'tripquest',
+  name: "tripquest",
   initialState,
   reducers: {},
   extraReducers: (builder) => {
-    // Handle fetching trip quests
     builder
       .addCase(fetchTripquestCards.pending, (state) => {
         state.loading = true;
@@ -67,10 +93,8 @@ const tripquestSlice = createSlice({
       })
       .addCase(fetchTripquestCards.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Failed to fetch tripquest cards';
+        state.error = action.error.message || "Failed to fetch tripquest cards";
       });
-
-    // Handle creating a new trip quest
     builder
       .addCase(createTripquest.pending, (state) => {
         state.createLoading = true;
@@ -78,15 +102,30 @@ const tripquestSlice = createSlice({
       })
       .addCase(createTripquest.fulfilled, (state, action) => {
         state.createLoading = false;
-        // Optionally, you can add the new trip quest to the existing list
         state.cards.push(action.payload);
       })
       .addCase(createTripquest.rejected, (state, action) => {
         state.createLoading = false;
-        state.createError = typeof action.payload === 'string' 
-        ? action.payload 
-        : 'Failed to create trip quest';
-    });
+        state.createError =
+          typeof action.payload === "string"
+            ? action.payload
+            : "Failed to create trip quest";
+      })
+      .addCase(updateTripquestStatus.pending, (state) => {})
+      .addCase(updateTripquestStatus.fulfilled, (state, action) => {
+        const index = state.cards.findIndex(
+          (card) => card.id_TripQuest === action.payload.id_TripQuest
+        );
+        if (index !== -1) {
+          state.cards[index].isActive = action.payload.isActive;
+        }
+      })
+      .addCase(updateTripquestStatus.rejected, (state, action) => {
+        console.error(
+          "Failed to update tripquest status:",
+          action.error.message
+        );
+      });
   },
 });
 

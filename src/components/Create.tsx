@@ -17,7 +17,6 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
   );
   const [selectedTripType, setSelectedTripType] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
   const [tripQuestData, setTripQuestData] = useState<{
     tripQuestName: string;
     description: string;
@@ -43,6 +42,42 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
     importantDetails: [],
     highlights: [],
   });
+  const [inputValue, setInputValue] = useState("");
+
+  const handleAddDetail = () => {
+    if (inputValue.trim() === "") return; // Nếu input trống thì không thêm
+    setTripQuestData((prevData) => ({
+      ...prevData,
+      importantDetails: [...prevData.importantDetails, inputValue.trim()],
+    }));
+    setInputValue(""); // Xóa ô input sau khi thêm
+  };
+
+  const handleDeleteDetail = (index: number) => {
+    setTripQuestData((prevData) => ({
+      ...prevData,
+      importantDetails: prevData.importantDetails.filter((_, i) => i !== index),
+    }));
+  };
+
+  const [highlightValue, setHighlightValue] = useState("");
+
+  const handleAddHighlight = () => {
+    if (highlightValue.trim() === "") return; // Nếu input trống thì không thêm
+    setTripQuestData((prevData) => ({
+      ...prevData,
+      highlights: [...prevData.highlights, highlightValue.trim()],
+    }));
+    setHighlightValue(""); // Xóa ô input sau khi thêm
+  };
+
+  // Xóa điểm nổi bật
+  const handleDeleteHighlight = (index: number) => {
+    setTripQuestData((prevData) => ({
+      ...prevData,
+      highlights: prevData.highlights.filter((_, i) => i !== index),
+    }));
+  };
 
   useEffect(() => {
     dispatch(fetchAllTripTypes());
@@ -62,14 +97,10 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
 
       dispatch(uploadImage(formData)).then((response) => {
         const uploadedUrls = response.payload as string[];
-
-        // Check for duplicates before updating state
         setTripQuestData((prev) => {
           const newImageUrls = Array.isArray(prev.imageUrl)
             ? [...prev.imageUrl, ...uploadedUrls]
             : uploadedUrls;
-
-          // Remove duplicates if needed
           const uniqueImageUrls = Array.from(new Set(newImageUrls));
           return {
             ...prev,
@@ -88,9 +119,9 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(createTripquest(tripQuestData));
+    await dispatch(createTripquest(tripQuestData));
     closeModal();
   };
   const handleSelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
@@ -106,7 +137,6 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className="fixed inset-0 bg-gray-800 bg-opacity-50 z-40 mr-4"
         onClick={closeModal}
@@ -355,48 +385,81 @@ const Create: React.FC<CreateProps> = ({ closeModal }) => {
               >
                 Chi tiết quan trọng
               </label>
-              <textarea
-                id="importantDetails"
-                name="importantDetails"
-                value={tripQuestData.importantDetails.join(", ")} // Join array values for display
-                onChange={(e) => {
-                  const details = e.target.value
-                    .split(",")
-                    .map((item) => item.trim());
-                  setTripQuestData((prevData) => ({
-                    ...prevData,
-                    importantDetails: details,
-                  }));
-                }}
-                className="w-full p-2 border border-gray-300 rounded"
-              />
+              <div className="flex space-x-2">
+                <input
+                  id="importantDetails"
+                  name="importantDetails"
+                  type="text"
+                  value={inputValue}
+                  onChange={(e) => setInputValue(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                  placeholder="Nhập chi tiết quan trọng"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddDetail}
+                  className="p-2 bg-blue-500 text-white rounded"
+                >
+                  Thêm
+                </button>
+              </div>
+              <ul className="mt-2">
+                {tripQuestData.importantDetails.map((detail, index) => (
+                  <li key={index} className="flex items-center justify-between">
+                    <span>{detail}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteDetail(index)}
+                      className="text-red-500 ml-2"
+                    >
+                      Xóa
+                    </button>
+                  </li>
+                ))}
+              </ul>
               <small className="text-gray-500">
-                Nhập các chi tiết quan trọng, cách nhau bằng dấu phẩy.
+                Nhập các chi tiết quan trọng, nhấn "Thêm" để lưu vào danh sách.
               </small>
             </div>
-
             {/* Highlights */}
             <div className="mb-4">
               <label htmlFor="highlights" className="block text-gray-700 mb-2">
                 Điểm nổi bật
               </label>
-              <textarea
-                id="highlights"
-                name="highlights"
-                value={tripQuestData.highlights.join(", ")} // Join array values for display
-                onChange={(e) => {
-                  const highlights = e.target.value
-                    .split(",")
-                    .map((item) => item.trim());
-                  setTripQuestData((prevData) => ({
-                    ...prevData,
-                    highlights: highlights,
-                  }));
-                }}
-                className="w-full p-2 border border-gray-300 rounded"
-              />
+              <div className="flex space-x-2">
+                <input
+                  id="highlights"
+                  name="highlights"
+                  type="text"
+                  value={highlightValue}
+                  onChange={(e) => setHighlightValue(e.target.value)}
+                  className="w-full p-2 border border-gray-300 rounded"
+                  placeholder="Nhập điểm nổi bật"
+                />
+                <button
+                  type="button"
+                  onClick={handleAddHighlight}
+                  className="p-2 bg-blue-500 text-white rounded"
+                >
+                  Thêm
+                </button>
+              </div>
+              <ul className="mt-2">
+                {tripQuestData.highlights.map((highlight, index) => (
+                  <li key={index} className="flex items-center justify-between">
+                    <span>{highlight}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteHighlight(index)}
+                      className="text-red-500 ml-2"
+                    >
+                      Xóa
+                    </button>
+                  </li>
+                ))}
+              </ul>
               <small className="text-gray-500">
-                Nhập các điểm nổi bật, cách nhau bằng dấu phẩy.
+                Nhập các điểm nổi bật, nhấn "Thêm" để lưu vào danh sách.
               </small>
             </div>
             <div className="flex justify-end space-x-4">

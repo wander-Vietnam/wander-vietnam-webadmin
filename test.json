@@ -1,35 +1,57 @@
-[
-  {
-    "id_CheckPoint": "9c46d4a3-c071-4022-87b8-bdea92ed3f5d",
-    "longitude": "106.3894432",
-    "latitude": "9.9162106",
-    "id_City": "9f051879-fd6a-4ebf-b46f-25785e419e25",
-    "checkpointName": "Trà Vinh",
-    "operatingHours": "08:00 - 18:00",
-    "createdAt": "2024-11-05T15:13:48.464Z",
-    "updatedAt": "2024-11-05T15:13:48.464Z",
-    "address": "Ấp cù lao Cồn Chim, Xã Hòa Minh, Huyện Châu Thành, Tỉnh Trà Vinh."
-  },
-  {
-    "id_CheckPoint": "1a55b74b-23ac-459e-b1a7-1cc76befee46",
-    "longitude": "106.648409",
-    "latitude": "10.7496697",
-    "id_City": "456ce0c9-b882-4e6b-af9a-497ade321bf8",
-    "checkpointName": "Hồ Chí Minh",
-    "operatingHours": "06:00 - 16:30",
-    "createdAt": "2024-11-05T14:54:40.362Z",
-    "updatedAt": "2024-11-05T14:54:40.362Z",
-    "address": "57A Tháp Mười, Phường 2, Quận 6, Hồ Chí Minh, Việt Nam"
-  },
-  {
-    "id_CheckPoint": "95682bdf-003c-4019-8fc6-728b6f199033",
-    "longitude": "106.6907312",
-    "latitude": "10.7916114",
-    "id_City": "456ce0c9-b882-4e6b-af9a-497ade321bf8",
-    "checkpointName": "Hồ Chí Minh",
-    "operatingHours": "08:00 - 17:30",
-    "createdAt": "2024-11-05T09:58:10.244Z",
-    "updatedAt": "2024-11-05T09:58:10.244Z",
-    "address": "145 Trần Quang Khải, Phường Tân Định, Quận 1, Thành phố Hồ Chí Minh"
-  }
-]
+{
+  "id_TripQuest": "afd8d9d2-997a-4f9c-a20d-e04b13f6fe43",
+  "tripQuestName": "Theo dấu chân chiến sĩ",
+  "description": "Khám phá một vòng trung tâm Sài Gòn – Thành phố Hồ Chí Minh từ những công trình kiến trúc cổ kính đến những địa chỉ đỏ. Hành trình “Theo dấu chân chiến sĩ” sẽ đưa bạn trải nghiệm trọn vẹn từng phút giây khi được hòa mình cùng dòng chảy lịch sử vẻ vang một thời và tìm hiểu về từng bước chuyển mình của thành phố với những thử thách đầy bất ngờ! ",
+  "imageUrl": [
+    "https://tranngoctu.click/image/uploads/b4c74295368afbfc24c7e16e82fa7e59ccedf3c8a00a08ea7fde3cd4c591.png"
+  ],
+  "highlights": [
+    "Giải mã các câu đố và khám phá những điều thú vị về lịch sử, văn hóa của thành phố.",
+    "Thưởng lãm các công trình kiến trúc nổi bật.",
+    "Lắng nghe các câu chuyện phía sau mỗi điểm đến, thưởng thức ẩm thực địa phương."
+  ],
+  "createdAt": "2024-11-05T17:14:01.675Z",
+  "price": "330000",
+  "isForTeamBuilding": false,
+  "id_TripType": "57fa52c4-89b6-4242-933a-e805c852147c",
+  "id_User": null,
+  "expectedDuration": "180",
+  "startTime": "07:30",
+  "endTime": "17:00",
+  "importantDetails": [
+    "Ăn nhẹ trước khi xuất phát.",
+    "Nên khởi hành từ 08:00 để khám phá trọn vẹn các điểm đến.",
+    "Nên mang giày thể thao và mang theo bình nước cá nhân để đảm bảo sức khỏe và thuận tiện hơn trong việc di chuyển.",
+    "Chuẩn bị ô, mũ đề phòng vấn đề thời tiết.",
+    "Tự bảo quản tư trang tại các điểm tham quan.",
+    "Nên nghiên cứu trước lộ trình để lựa chọn phương tiện di chuyển phù hợp. ",
+    "Phương tiện cá nhân, phương tiện công cộng (xe buýt, xe công nghệ, xe đạp,...), đi bộ."
+  ],
+  "isActive": true,
+  "checkpoints": [
+    {
+      "id_CheckPoint": "1b20e532-9b54-47c3-b579-56ab796ffed3",
+      "checkpointName": "Hồ Chí Minh",
+      "longitude": 106.648409,
+      "latitude": 10.7496697,
+      "address": "57A Tháp Mười, Phường 2, Quận 6, Hồ Chí Minh, Việt Nam",
+      "operatingHours": "06:00 - 16:30"
+    },
+    {
+      "id_CheckPoint": "cc0db72a-77eb-41b4-a892-92bfcb7b358a",
+      "checkpointName": "An Giang",
+      "longitude": 106.681152,
+      "latitude": 10.82755,
+      "address": "35 Trần thị nghỉ",
+      "operatingHours": "09:00 - 18:00"
+    },
+    {
+      "id_CheckPoint": "95682bdf-003c-4019-8fc6-728b6f199033",
+      "checkpointName": "Hồ Chí Minh",
+      "longitude": 106.6907312,
+      "latitude": 10.7916114,
+      "address": "145 Trần Quang Khải, Phường Tân Định, Quận 1, Thành phố Hồ Chí Minh",
+      "operatingHours": "08:00 - 17:30"
+    }
+  ]
+}
