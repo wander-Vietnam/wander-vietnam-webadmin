@@ -9,13 +9,13 @@ const Dashboard: React.FC = () => {
   const tabs = [
     { name: "Users", endpoint: "/users" },
     { name: "Provinces", endpoint: "/province" },
-    { name: "Trip Quests", endpoint: "/tripquest" },
-    { name: "Reviews", endpoint: "/review" },
-    { name: "Trip Types", endpoint: "/triptype" },
-    { name: "Checkpoints", endpoint: "/checkpoints" },
-    { name: "Favorites", endpoint: "/favorites" },
-    { name: "Questions", endpoint: "/questions" },
-    { name: "Purchase History", endpoint: "/purchase-history" },
+    // { name: "Trip Quests", endpoint: "/tripquest" },
+    // { name: "Reviews", endpoint: "/review" },
+    // { name: "Trip Types", endpoint: "/triptype" },
+    // { name: "Checkpoints", endpoint: "/checkpoints" },
+    // { name: "Favorites", endpoint: "/favorites" },
+    // { name: "Questions", endpoint: "/questions" },
+    // { name: "Purchase History", endpoint: "/purchase-history" },
     { name: "Creator", endpoint: "/creator" }, // Thêm tab mới cho Creator
   ];
 
@@ -28,20 +28,20 @@ const Dashboard: React.FC = () => {
       case "/province":
         return <Provinces />;
         //
-      case "/tripquest":
-        return <div>Trip Quest Management</div>;
-      case "/review":
-        return <div>Review Management</div>;
-      case "/triptype":
-        return <div>Trip Type Management</div>;
-      case "/checkpoints":
-        return <div>Checkpoint Management</div>;
-      case "/favorites":
-        return <div>Favorite Management</div>;
-      case "/questions":
-        return <div>Question Management</div>;
-      case "/purchase-history":
-        return <div>Purchase History Management</div>;
+      // case "/tripquest":
+      //   return <div>Trip Quest Management</div>;
+      // case "/review":
+      //   return <div>Review Management</div>;
+      // case "/triptype":
+      //   return <div>Trip Type Management</div>;
+      // case "/checkpoints":
+      //   return <div>Checkpoint Management</div>;
+      // case "/favorites":
+      //   return <div>Favorite Management</div>;
+      // case "/questions":
+      //   return <div>Question Management</div>;
+      // case "/purchase-history":
+      //   return <div>Purchase History Management</div>;
       case "/creator":
         return <Creator />;
       default:
