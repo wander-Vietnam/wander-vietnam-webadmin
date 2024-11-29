@@ -18,8 +18,8 @@ const AddLocationModal: React.FC<AddLocationModalProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const cities = useSelector((state: RootState) => state.cities.cities); // Lấy danh sách thành phố từ Redux
   const [formData, setFormData] = useState<ICheckPointCreate>({
-    latitude: "",
-    longitude: "",
+    latitude: "0",  // Set default value for latitude
+    longitude: "0", // Set default value for longitude
     id_City: "",
     checkpointName: "",
     address: "",
@@ -42,8 +42,6 @@ const AddLocationModal: React.FC<AddLocationModalProps> = ({
 
   const handleAddCheckpoint = async () => {
     if (
-      !formData.latitude ||
-      !formData.longitude ||
       !formData.checkpointName ||
       !formData.address ||
       !formData.id_City
@@ -52,8 +50,11 @@ const AddLocationModal: React.FC<AddLocationModalProps> = ({
       return;
     }
 
+    // Giữ vĩ độ và kinh độ là "0" khi gửi API
     const checkpointData: ICheckPointCreate = {
       ...formData,
+      latitude: "0", // Always set latitude to "0"
+      longitude: "0", // Always set longitude to "0"
     };
 
     try {
@@ -99,30 +100,7 @@ const AddLocationModal: React.FC<AddLocationModalProps> = ({
           />
         </div>
 
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Vĩ độ</label>
-          <input
-            type="text"
-            name="latitude"
-            value={formData.latitude}
-            onChange={handleInputChange}
-            placeholder="Ví dụ: 9.9162106"
-            className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-          />
-        </div>
-
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700">Kinh độ</label>
-          <input
-            type="text"
-            name="longitude"
-            value={formData.longitude}
-            onChange={handleInputChange}
-            placeholder="Ví dụ: 106.3894432"
-            className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-          />
-        </div>
-
+        {/* Remove latitude and longitude input */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700">Giờ hoạt động</label>
           <input
