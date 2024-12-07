@@ -22,6 +22,19 @@ export const fetchAllTripTypes = createAsyncThunk(
     }
   }
 );
+export const deleteTripType = createAsyncThunk(
+  'tripTypes/delete',
+  async (id_tripType: string, { rejectWithValue }) => {
+    try {
+      // Call the API to delete the trip type
+      await apiClient.delete(`/triptype/delete/${id_tripType}`); // Use the API endpoint for deletion
+      return id_tripType; // Return the id of the deleted trip type to remove it from the state
+    } catch (error: any) {
+      console.error(error);
+      return rejectWithValue(error.response?.data || 'Failed to delete trip type');
+    }
+  }
+);
 
 export const createTripType = createAsyncThunk(
   'tripTypes/create',
@@ -66,11 +79,26 @@ const tripTypesSlice = createSlice({
       })
       .addCase(createTripType.fulfilled, (state, action) => {
         state.creating = false;
-        state.tripTypes.push(action.payload); // Thêm tripType mới vào danh sách
+        state.tripTypes.push(action.payload); // Add new trip type to the list
       })
       .addCase(createTripType.rejected, (state, action) => {
         state.creating = false;
         state.errorTriptype = action.payload as string || 'Failed to create trip type';
+      })
+      .addCase(deleteTripType.pending, (state) => {
+        state.loadingTriptype = true;
+        state.errorTriptype = null;
+      })
+      .addCase(deleteTripType.fulfilled, (state, action) => {
+        state.loadingTriptype = false;
+        // Remove the deleted trip type from the list of trip types
+        state.tripTypes = state.tripTypes.filter(
+          (tripType) => tripType.id_TripType !== action.payload
+        );
+      })
+      .addCase(deleteTripType.rejected, (state, action) => {
+        state.loadingTriptype = false;
+        state.errorTriptype = action.payload as string || 'Failed to delete trip type';
       });
   },
 });

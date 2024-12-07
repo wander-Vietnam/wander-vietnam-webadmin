@@ -23,6 +23,7 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [isMiniGameOpen, setIsMiniGameOpen] = React.useState(false);
+  const [isStoryOpen, setIsStoryOpen] = React.useState(false);
   const [currentCheckpointId, setCurrentCheckpointId] = React.useState<
     string | null
   >(null);
@@ -68,9 +69,17 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
     setIsMiniGameOpen(false);
     setCurrentCheckpointId(null);
   };
+  const handleCloseStory = () => {
+    setIsStoryOpen(false);
+    setCurrentCheckpointId(null);
+  };
   const handleMiniGame = (id_CheckPoint: string, id_TripQuest: string) => {
     setCurrentCheckpointId(id_CheckPoint);
     setIsMiniGameOpen(true);
+  };
+  const handleStory= (id_CheckPoint: string, id_TripQuest: string) => {
+    setCurrentCheckpointId(id_CheckPoint);
+    setIsStoryOpen(true);
   };
 
   const handleAddCheckpoint = async (
@@ -151,7 +160,6 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
         </button>
         <h3 className="text-xl font-semibold mb-4">Danh sách địa điểm</h3>
 
-        {/* Danh sách các checkpoints hiện tại */}
         {checkpoints.length > 0 ? (
           <div className="grid grid-cols-2 gap-4">
             {checkpoints.map((checkpoint) => (
@@ -175,8 +183,6 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
                   >
                     Xem chi tiết
                   </button>
-
-                  {/* Nút Mini Game */}
                   <button
                     onClick={() =>
                       handleMiniGame(checkpoint.id_CheckPoint, tripQuestId)
@@ -185,8 +191,14 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
                   >
                     Mini Game
                   </button>
-
-                  {/* Nút Xoá */}
+                  <button
+                    onClick={() =>
+                      handleStory(checkpoint.id_CheckPoint, tripQuestId)
+                    }
+                    className="text-black-500 hover:underline text-sm"
+                  >
+                   Câu truyện
+                  </button>
                   <button
                     onClick={() =>
                       handleDeleteCheckpoint(checkpoint.id_CheckPoint, tripQuestId)
@@ -300,7 +312,7 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
           />
         )}
 
-        {isMiniGameOpen && currentCheckpointId && (
+{isMiniGameOpen && currentCheckpointId && (
           <MiniGameModal
             isOpen={isMiniGameOpen}
             onClose={handleCloseMiniGame}

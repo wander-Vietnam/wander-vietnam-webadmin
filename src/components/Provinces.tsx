@@ -7,7 +7,7 @@ import {
   deleteProvince,
 } from "../redux/provinceSlice";
 import { RootState, AppDispatch } from "../redux/store";
-import { NewProvince, Province } from "../types/Province";
+import { Province, NewProvince } from "../types/Province";
 
 const Provinces: React.FC = () => {
   const dispatch: AppDispatch = useDispatch();
@@ -33,18 +33,15 @@ const Provinces: React.FC = () => {
     }
 
     if (editingProvince) {
-      console.log(newProvince);
       const updatedProvince = { ...newProvince, id_city: editingProvince.id_city };
       dispatch(updateProvince({ id: editingProvince.id_city, data: updatedProvince }));
     } else {
-      // Create a new province without id_city
       dispatch(createProvince(newProvince));
     }
 
-    // Fetch the updated list of provinces
-    dispatch(fetchAllProvinces());
+    dispatch(fetchAllProvinces()); // Fetch updated list
 
-    // Reset the form after submission
+    // Reset form after submission
     setNewProvince({ cityName: "", isFeatured: false });
     setEditingProvince(null);
   };
@@ -71,8 +68,7 @@ const Provinces: React.FC = () => {
 
   const handleDelete = (id_city: string) => {
     dispatch(deleteProvince(id_city));
-    // Fetch the updated list of provinces after delete
-    dispatch(fetchAllProvinces());
+    dispatch(fetchAllProvinces()); // Fetch updated list
   };
 
   return (
@@ -90,7 +86,6 @@ const Provinces: React.FC = () => {
           {editingProvince ? "Edit Province" : "Add New Province"}
         </h3>
         <div className="space-y-4">
-          {/* No input for id_city */}
           <input
             type="text"
             name="cityName"
@@ -119,45 +114,37 @@ const Provinces: React.FC = () => {
         </div>
       </div>
 
-      {provinces.length > 0 ? (
-        <table className="min-w-full bg-white border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="py-3 px-4 border-b text-left">City ID</th>
-              <th className="py-3 px-4 border-b text-left">City Name</th>
-              <th className="py-3 px-4 border-b text-left">Featured</th>
-              <th className="py-3 px-4 border-b text-left">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {provinces.map((province: Province) => (
-              <tr key={province.id_city} className="hover:bg-gray-100">
-                <td className="py-2 px-4 border-b">{province.id_city}</td>
-                <td className="py-2 px-4 border-b">{province.cityName}</td>
-                <td className="py-2 px-4 border-b">
-                  {province.isFeatured ? "Yes" : "No"}
-                </td>
-                <td className="py-2 px-4 border-b">
-                  <button
-                    onClick={() => handleEdit(province)}
-                    className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(province.id_city)}
-                    className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 ml-2"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      ) : (
-        <p className="mt-4">No provinces found.</p>
-      )}
+      <div className="space-y-4">
+        {provinces.length > 0 ? (
+          provinces.map((province: Province) => (
+            <div
+              key={province.id_city}
+              className="border p-4 rounded-lg shadow-sm flex justify-between items-center"
+            >
+              <div className="flex-1">
+                <h4 className="text-lg font-semibold">{province.cityName}</h4>
+                <p className="text-gray-600">{province.isFeatured ? "Featured" : "Not Featured"}</p>
+              </div>
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => handleEdit(province)}
+                  className="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(province.id_city)}
+                  className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          ))
+        ) : (
+          <p>No provinces found.</p>
+        )}
+      </div>
     </div>
   );
 };

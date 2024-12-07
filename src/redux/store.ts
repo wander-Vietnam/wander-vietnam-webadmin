@@ -8,6 +8,8 @@ import tripTypesReducer from './tripTypesSlice';
 import checkpointReducer from './checkpointSlice'; 
 import cityReducer from './citySlice';
 import quizzReducer from './quizzSlice';
+import reviewReducer from './reviewSlice';
+import purchaseReducer from './purchaseSlice';
 import axios from 'axios';
 const store = configureStore({
   reducer: {
@@ -20,6 +22,8 @@ const store = configureStore({
     checkpoint: checkpointReducer,
     cities: cityReducer,
     quizz: quizzReducer,
+    reviews: reviewReducer,
+    purchase: purchaseReducer
   },
 });
 const apiClient = axios.create({

@@ -6,16 +6,18 @@ import {
   CheckpointsDetailResponse,
   ICheckPointCreate,
   ICheckPointUpdate,
+  AllCheckpoint,
 } from "../types/Checkpoint";
 
 interface CheckpointState {
-  checkpoints: Checkpoint[]; // Dữ liệu của API khác
+  checkpoints: Checkpoint[];
   allCheckpoints: AllCheckpointsResponse[]; // Dữ liệu cho API getAllCheckpoints
   availableCheckpoints: AllCheckpointsResponse[]; // Dữ liệu cho API getAvailableCheckpoints
   loading: boolean;
   error: string | null;
   fetchById: boolean;
   checkpointDetail: CheckpointsDetailResponse | null;
+  allCheckpoint: AllCheckpoint[]
 }
 
 const initialState: CheckpointState = {
@@ -26,6 +28,7 @@ const initialState: CheckpointState = {
   fetchById: false,
   error: null,
   checkpointDetail: null,
+  allCheckpoint: []
 };
 export const addCheckPoint = createAsyncThunk<
   string,
@@ -83,7 +86,6 @@ export const deleteTripQuestLocation = createAsyncThunk<
     }
   }
 );
-
 export const fetchCheckpointById = createAsyncThunk<
   CheckpointsDetailResponse,
   string,
@@ -100,6 +102,40 @@ export const fetchCheckpointById = createAsyncThunk<
     );
   }
 });
+export const fetchAllCheckpoint = createAsyncThunk<
+  AllCheckpoint[],  // Return type
+  void,              // Argument type
+  { rejectValue: string }
+>("checkpoints/fetchAllCheckpoints", async (_, { rejectWithValue }) => {
+  try {
+    const response = await apiClient.get("/checkpoints/get-all-checkpoint");
+    return response.data;  // Return the fetched data
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data || "Failed to fetch all checkpoints"
+    );
+  }
+});
+export const deleteCheckpoint = createAsyncThunk<
+  void,
+  string,
+  { rejectValue: string }
+>(
+  "checkpoints/deleteCheckpoint",
+  async (id, { rejectWithValue }) => {
+    try {
+      // Gọi API DELETE
+      await apiClient.delete(`/checkpoints/delete/${id}`);
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Failed to delete checkpoint"
+      );
+    }
+  }
+);
+
+
+
 // Thunk để lấy tất cả checkpoints
 export const fetchAllCheckpoints = createAsyncThunk<
   AllCheckpointsResponse[],
@@ -273,8 +309,30 @@ const checkpointSlice = createSlice({
       .addCase(deleteTripQuestLocation.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to delete tripquest location";
+      })
+      .addCase(fetchAllCheckpoint.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAllCheckpoint.fulfilled, (state, action) => {
+        state.loading = false;
+        state.allCheckpoint = action.payload;  // Store the fetched data
+      })
+      .addCase(fetchAllCheckpoint.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch all checkpoints";
+      })
+      .addCase(deleteCheckpoint.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteCheckpoint.fulfilled, (state) => {
+        state.loading = false;
+      })
+      .addCase(deleteCheckpoint.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to delete checkpoint";
       });
   },
 });
-
 export default checkpointSlice.reducer;

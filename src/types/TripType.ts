@@ -5,8 +5,9 @@
     errorTriptype: string | null;
     creating: boolean;
   }
-  interface TripType {
-    id: string;
-    name: string;
+  export interface TripType {
+    id_TripType: string;  
+    tripTypeName: string;
+    // other properties
   }
   
