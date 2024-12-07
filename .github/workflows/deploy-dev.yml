@@ -41,6 +41,6 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
            cd webadmin
-           echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker-compose pull
-           echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker-compose up -d
-           echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker image prune -f
+           sudo docker compose pull
+           sudo docker compose up -d
+           sudo docker image prune -f
