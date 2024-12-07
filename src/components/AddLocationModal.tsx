@@ -18,8 +18,8 @@ const AddLocationModal: React.FC<AddLocationModalProps> = ({
   const dispatch = useDispatch<AppDispatch>();
   const cities = useSelector((state: RootState) => state.cities.cities); // Lấy danh sách thành phố từ Redux
   const [formData, setFormData] = useState<ICheckPointCreate>({
-    latitude: "0",  // Set default value for latitude
-    longitude: "0", // Set default value for longitude
+    latitude: "0", 
+    longitude: "0",
     id_City: "",
     checkpointName: "",
     address: "",
