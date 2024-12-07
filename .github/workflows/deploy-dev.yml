@@ -33,7 +33,7 @@ jobs:
           target: dev
 
       - name: SSH into Server
-        uses: appleboy/ssh-action@v0.1.0
+        uses: appleboy/ssh-action@v1.0.0
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USERNAME }}
@@ -41,6 +41,6 @@ jobs:
           port: ${{ secrets.SERVER_PORT }}
           script: |
            cd webadmin
-           sudo docker compose pull
-           sudo docker compose up -d
-           sudo docker image prune -f
+           echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker-compose pull
+           echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker-compose up -d
+           echo "${{ secrets.SERVER_PASSWORD }}" | sudo -S docker image prune -f
