@@ -1,4 +1,8 @@
 import React, { useState } from "react";
+import { FaSignOutAlt } from "react-icons/fa"; // Import the logout icon from react-icons
+import { useDispatch } from "react-redux"; // Assuming you're using redux for authentication
+import { logout } from "../redux/authSlice"; // Your logout action
+import { useNavigate } from "react-router-dom"; // For redirection after logout
 import Users from "../components/Users";
 import Provinces from "../components/Provinces";
 import Creator from "../components/Creator";
@@ -10,6 +14,8 @@ import Purchases from "../components/Purchases";
 
 const Dashboard: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
 
   const tabs = [
     { name: "Users", endpoint: "/users" },
@@ -47,6 +53,12 @@ const Dashboard: React.FC = () => {
     }
   };
 
+  const handleLogout = () => {
+    dispatch(logout());
+    localStorage.removeItem("accessToken");
+    navigate("/login");
+  };
+
   return (
     <div className="flex min-h-screen bg-gray-100">
       <div
@@ -79,9 +91,7 @@ const Dashboard: React.FC = () => {
         {" "}
         {/* Thêm margin-left cho nội dung chính để tránh bị che khuất bởi menu */}
         <header className="flex justify-between items-center mb-4">
-          <h1 className="text-2xl font-semibold text-gray-700">
-            Wander Viet Nam
-          </h1>
+          <h1 className="text-2xl font-semibold text-gray-700">Wander Viet Nam</h1>
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="md:hidden p-2 bg-blue-500 text-white rounded"
@@ -89,6 +99,12 @@ const Dashboard: React.FC = () => {
             Menu
           </button>
           <div className="text-gray-600">Admin Info</div>
+          <button
+            onClick={handleLogout}
+            className="ml-4 p-2 bg-red-500 text-white rounded-full hover:bg-red-600"
+          >
+            <FaSignOutAlt size={20} />
+          </button>
         </header>
         <div className="bg-white p-4 rounded shadow">
           {renderActiveComponent()}

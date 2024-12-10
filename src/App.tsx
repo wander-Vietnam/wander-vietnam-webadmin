@@ -4,6 +4,7 @@ import { RootState } from './redux/store';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import { setAccessToken, loginSuccess } from './redux/authSlice'; 
+import { BrowserRouter as Router } from 'react-router-dom';
 
 const App: React.FC = () => {
   const dispatch = useDispatch();
@@ -18,13 +19,15 @@ const App: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-      {isLoggedIn ? (
-        <Dashboard /> 
-      ) : (
-        <Login />
-      )}
-    </div>
+    <Router> {/* Wrap your app with Router to enable routing context */}
+      <div className="min-h-screen bg-gray-100 p-6">
+        {isLoggedIn ? (
+          <Dashboard /> // Show the Dashboard if logged in
+        ) : (
+          <Login /> // Show the Login page if not logged in
+        )}
+      </div>
+    </Router>
   );
 };
 
