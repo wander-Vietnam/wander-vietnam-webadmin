@@ -1,8 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCheckpointById,updateCheckpoint } from "../redux/checkpointSlice";
+import {
+  fetchCheckpointById,
+  updateCheckpoint,
+} from "../redux/checkpointSlice";
 import { RootState, AppDispatch } from "../redux/store";
 import { fetchAllCities } from "../redux/citySlice";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
 interface DetailCheckPointModalProps {
   showModal: boolean;
   closeModal: () => void;
@@ -16,6 +22,8 @@ const DetailCheckPointModal: React.FC<DetailCheckPointModalProps> = ({
   id_TripQuest,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
+  const [isFetchingCoordinates, setIsFetchingCoordinates] = useState(false);
+
   const { loading, error, checkpointDetail } = useSelector(
     (state: RootState) => state.checkpoint
   );
@@ -29,6 +37,7 @@ const DetailCheckPointModal: React.FC<DetailCheckPointModalProps> = ({
     address: "",
     operatingHours: "",
   });
+  const mapRef = useRef<L.Map | null>(null);
   useEffect(() => {
     if (id_CheckPoint && showModal) {
       dispatch(fetchCheckpointById(id_CheckPoint));
@@ -43,7 +52,6 @@ const DetailCheckPointModal: React.FC<DetailCheckPointModalProps> = ({
         checkpointName: checkpointDetail.checkpointName,
         address: checkpointDetail.address,
         operatingHours: checkpointDetail.operatingHours,
-       
       });
     }
   }, [checkpointDetail]);
@@ -56,6 +64,51 @@ const DetailCheckPointModal: React.FC<DetailCheckPointModalProps> = ({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  let lat = parseFloat(checkpointDetail?.latitude ?? formData.latitude);
+  let lng = parseFloat(checkpointDetail?.longitude ?? formData.longitude);
+  const handleInputChangeAddress = async (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+    if (name === "address" && value.trim() !== "") {
+      setIsFetchingCoordinates(true);
+      try {
+        const coordinates = await fetchCoordinates(value);
+        lat = parseFloat(coordinates.lat);
+        lng = parseFloat(coordinates.lng);
+        if (coordinates) {
+          setFormData({
+            ...formData,
+            address: value,
+            latitude: coordinates.lat.toString(),
+            longitude: coordinates.lng.toString(),
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching coordinates:", err);
+      } finally {
+        setIsFetchingCoordinates(false);
+      }
+    }
+  };
+
+  const fetchCoordinates = async (address: string) => {
+    const API_KEY = "T7MEMQkbw8MA3OvaRcM5rvZb8pHV5BKJjfnpDlhU";
+    const url = `https://rsapi.goong.io/Geocode?address=${encodeURIComponent(
+      address
+    )}&api_key=${API_KEY}`;
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Unable to fetch coordinates");
+    }
+    const data = await response.json();
+    console.log(JSON.stringify(data));
+    if (data.results && data.results.length > 0) {
+      return data.results[0].geometry.location;
+    }
+    throw new Error("No valid results found");
+  };
 
   const handleSelectCity = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const { value } = e.target;
@@ -63,15 +116,21 @@ const DetailCheckPointModal: React.FC<DetailCheckPointModalProps> = ({
   };
   const handleUpdateCheckpoint = async () => {
     try {
-      await dispatch(updateCheckpoint({ id: id_CheckPoint, checkpointData: formData }));
+      await dispatch(
+        updateCheckpoint({ id: id_CheckPoint, checkpointData: formData })
+      );
       console.log("Cập nhật thành công!");
       closeModal();
     } catch (error) {
       console.error("Lỗi khi cập nhật:", error);
     }
   };
-  
 
+  useEffect(() => {
+    if (mapRef.current) {
+      mapRef.current.setView([lat, lng], mapRef.current.getZoom());
+    }
+  }, [lat, lng]);
   if (!showModal) return null;
 
   return (
@@ -105,9 +164,30 @@ const DetailCheckPointModal: React.FC<DetailCheckPointModalProps> = ({
                 type="text"
                 name="address"
                 value={formData.address}
-                onChange={handleInputChange}
+                onChange={handleInputChangeAddress}
                 className="mt-1 p-2 w-full border border-gray-300 rounded-md"
               />
+            </div>
+            <div className="mb-4">
+              <MapContainer
+                center={[lat, lng]} // Set map center to new coordinates
+                zoom={13}
+                style={{ height: "300px", width: "100%" }}
+                whenReady={() => {
+                  if (mapRef.current) {
+                    mapRef.current.setView(
+                      [lat, lng],
+                      mapRef.current.getZoom()
+                    ); // Update map view after ready
+                  }
+                }}
+                ref={mapRef}
+              >
+                <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
+                <Marker position={[lat, lng]}>
+                  <Popup>{formData.address || "No address available"}</Popup>
+                </Marker>
+              </MapContainer>
             </div>
 
             <div className="mb-4">
@@ -122,33 +202,6 @@ const DetailCheckPointModal: React.FC<DetailCheckPointModalProps> = ({
                 className="mt-1 p-2 w-full border border-gray-300 rounded-md"
               />
             </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                Kinh độ
-              </label>
-              <input
-                type="text"
-                name="longitude"
-                value={formData.longitude}
-                onChange={handleInputChange}
-                className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium text-gray-700">
-                Vĩ độ
-              </label>
-              <input
-                type="text"
-                name="latitude"
-                value={formData.latitude}
-                onChange={handleInputChange}
-                className="mt-1 p-2 w-full border border-gray-300 rounded-md"
-              />
-            </div>
-
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700">
                 Chọn thành phố
