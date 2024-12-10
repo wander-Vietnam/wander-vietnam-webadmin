@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getStoryQuestByIds } from "../redux/checkpointSlice"; // Import the action
-import { createTextToSpeech } from "../redux/textToSpeechSlice"; // Import the action to update text-to-speech
-
+import { getStoryQuestByIds } from "../redux/checkpointSlice";
+import { createTextToSpeech } from "../redux/textToSpeechSlice";
 import { AppDispatch, RootState } from "../redux/store";
 
 interface MiniGameModalProps {
@@ -20,7 +19,6 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  // Get story quest data from Redux store
   const { storyQuestData, loading, error } = useSelector(
     (state: RootState) => state.checkpoint
   );
@@ -28,6 +26,7 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
   const [storyQuestInput, setStoryQuestInput] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     if (!storyQuestData && isOpen) {
@@ -48,8 +47,7 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setStoryQuestInput(e.target.value);
-    // Hide the success message when the user starts typing
-    setSuccessMessage(null);
+    setSuccessMessage(null); // Hide success message when the user starts typing
   };
 
   const handleSubmit = () => {
@@ -59,14 +57,26 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
       storyQuest: storyQuestInput,
     };
 
+    setIsSubmitting(true); // Start the loading process
+
     dispatch(createTextToSpeech(updatedData)) // Call the API to update the story quest
       .then(() => {
         setSuccessMessage("Story quest updated successfully!"); // Show success message
         setErrorMessage(null); // Clear any error message
+        setTimeout(() => {
+          dispatch(
+            getStoryQuestByIds({
+              id_TripQuest: tripQuestId,
+              id_CheckPoint: checkpointId,
+            })
+          );
+          setIsSubmitting(false); // Stop the loading process after 2 seconds
+        }, 2000); // Wait for 2 seconds before fetching data again
       })
       .catch(() => {
         setErrorMessage("Failed to update story quest."); // Show error message
         setSuccessMessage(null); // Clear success message if there's an error
+        setIsSubmitting(false); // Stop loading if error occurs
       });
   };
 
@@ -96,16 +106,16 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
           </svg>
         </button>
 
-        {loading ? (
-          <div>Loading...</div>
+        {isSubmitting ? (
+          <div>Update...</div>
+        ) : loading ? (
+          <div>Update...</div>
         ) : error ? (
           <div>Error: {error}</div>
         ) : (
           <div>
-            {/* Display storyQuest data */}
             <h2 className="text-xl font-semibold">Story Quest Details</h2>
 
-            {/* Display and allow editing of storyQuest */}
             <div className="mb-4">
               <label htmlFor="storyQuest" className="block text-gray-700">
                 Story Quest:
@@ -127,7 +137,6 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
               Submit
             </button>
 
-            {/* Display success or error message */}
             {successMessage && (
               <div className="mt-4 text-green-500 bg-green-100 p-2 rounded-md">
                 {successMessage}
@@ -136,6 +145,21 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
             {errorMessage && (
               <div className="mt-4 text-red-500 bg-red-100 p-2 rounded-md">
                 {errorMessage}
+              </div>
+            )}
+
+            {storyQuestData?.link_StoryQuest && (
+              <div className="mt-4">
+                <label className="block text-gray-700">
+                  Play Story Quest Audio:
+                </label>
+                <audio controls className="w-full mt-2">
+                  <source
+                    src={storyQuestData.link_StoryQuest}
+                    type="audio/mp3"
+                  />
+                  Your browser does not support the audio element.
+                </audio>
               </div>
             )}
           </div>

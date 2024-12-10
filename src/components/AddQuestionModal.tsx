@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { createQuestion } from "../redux/quizzSlice";
-import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from "../redux/store";
+import { useDispatch } from "react-redux";
 import { IQuestion } from "../types/Province";
+import { AppDispatch } from "../redux/store";
+
 interface AddQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -68,7 +69,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             <div className="mb-4">
               <label
                 htmlFor="correctAnswers"
-                className="block text-sm font-medium"
+                className="block text-sm font-medium text-blue-700"
               >
                 Câu trả lời đúng (ngăn cách bằng dấu phẩy)
               </label>
@@ -77,14 +78,14 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 type="text"
                 value={correctAnswers.join(", ")}
                 onChange={handleCorrectAnswerChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md"
+                className="mt-1 block w-full border-2 border-blue-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
             <div className="mb-4">
               <label
                 htmlFor="wrongAnswers"
-                className="block text-sm font-medium"
+                className="block text-sm font-medium text-red-700"
               >
                 Câu trả lời sai (ngăn cách bằng dấu phẩy)
               </label>
@@ -93,7 +94,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                 type="text"
                 value={wrongAnswers.join(", ")}
                 onChange={handleWrongAnswerChange}
-                className="mt-1 block w-full border border-gray-300 rounded-md"
+                className="mt-1 block w-full border-2 border-red-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-red-500"
               />
             </div>
           </>
@@ -103,7 +104,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           <div className="mb-4">
             <label
               htmlFor="correctAnswers"
-              className="block text-sm font-medium"
+              className="block text-sm font-medium text-blue-700"
             >
               Câu trả lời đúng (để trống nếu không có nhiều câu trả lời)
             </label>
@@ -112,7 +113,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               type="text"
               value={correctAnswers.join(", ")}
               onChange={handleCorrectAnswerChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md"
+              className="mt-1 block w-full border-2 border-blue-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         );
@@ -121,7 +122,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           <div className="mb-4">
             <label
               htmlFor="correctAnswers"
-              className="block text-sm font-medium"
+              className="block text-sm font-medium text-blue-700"
             >
               Câu trả lời đúng
             </label>
@@ -129,7 +130,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               id="correctAnswers"
               value={correctAnswers[0] || ""}
               onChange={(e) => setCorrectAnswers([e.target.value])}
-              className="mt-1 block w-full border border-gray-300 rounded-md"
+              className="mt-1 block w-full border-2 border-blue-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="true">True</option>
               <option value="false">False</option>
@@ -141,7 +142,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           <div className="mb-4">
             <label
               htmlFor="correctAnswers"
-              className="block text-sm font-medium"
+              className="block text-sm font-medium text-blue-700"
             >
               Câu trả lời đúng (ngăn cách bằng dấu phẩy)
             </label>
@@ -150,7 +151,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
               type="text"
               value={correctAnswers.join(", ")}
               onChange={handleCorrectAnswerChange}
-              className="mt-1 block w-full border border-gray-300 rounded-md"
+              className="mt-1 block w-full border-2 border-blue-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         );
@@ -185,9 +186,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           </svg>
         </button>
 
-        <h2 className="text-xl font-bold mb-4">Thêm câu hỏi mới:</h2>
+        <h2 className="text-xl font-bold mb-6 text-center text-blue-600">Thêm câu hỏi mới</h2>
+
         <div className="mb-4">
-          <label htmlFor="questionText" className="block text-sm font-medium">
+          <label htmlFor="questionText" className="block text-sm font-medium text-gray-700">
             Nội dung câu hỏi
           </label>
           <input
@@ -195,12 +197,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             type="text"
             value={questionText}
             onChange={(e) => setQuestionText(e.target.value)}
-            className="mt-1 block w-full border border-gray-300 rounded-md"
+            className="mt-1 block w-full border-2 border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="points" className="block text-sm font-medium">
+          <label htmlFor="points" className="block text-sm font-medium text-gray-700">
             Điểm
           </label>
           <input
@@ -208,12 +210,12 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             type="number"
             value={points}
             onChange={(e) => setPoints(Number(e.target.value))}
-            className="mt-1 block w-full border border-gray-300 rounded-md"
+            className="mt-1 block w-full border-2 border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
         </div>
 
         <div className="mb-4">
-          <label htmlFor="questionType" className="block text-sm font-medium">
+          <label htmlFor="questionType" className="block text-sm font-medium text-gray-700">
             Loại câu hỏi
           </label>
           <select
@@ -228,7 +230,7 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
                   | "sort"
               )
             }
-            className="mt-1 block w-full border border-gray-300 rounded-md"
+            className="mt-1 block w-full border-2 border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="multiple_choice">Multiple Choice</option>
             <option value="open_answer">Open Answer</option>
@@ -239,16 +241,16 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
 
         {renderAnswerFields()}
 
-        <div className="flex justify-end space-x-2">
+        <div className="flex justify-end space-x-4 mt-6">
           <button
             onClick={onAdd}
-            className="bg-blue-600 text-white px-4 py-2 rounded-md"
+            className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none"
           >
             Thêm câu hỏi
           </button>
           <button
             onClick={onClose}
-            className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md"
+            className="bg-gray-300 text-gray-700 px-6 py-2 rounded-md hover:bg-gray-400 focus:outline-none"
           >
             Hủy
           </button>
