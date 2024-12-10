@@ -1,6 +1,9 @@
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchQuestionsByTripAndCheckpoint } from "../redux/quizzSlice";
+import {
+  fetchQuestionsByTripAndCheckpoint,
+  deleteQuestion,
+} from "../redux/quizzSlice";
 import { AppDispatch, RootState } from "../redux/store";
 import AddQuestionModal from "./AddQuestionModal";
 
@@ -19,11 +22,11 @@ const MiniGameModal: React.FC<MiniGameModalProps> = ({
 }) => {
   const dispatch = useDispatch<AppDispatch>();
 
-  // Lấy dữ liệu câu hỏi từ Redux store
   const { questions, loading, error } = useSelector(
     (state: RootState) => state.quizz
   );
-  const [isAddQuestionModalOpen, setIsAddQuestionModalOpen] = React.useState(false);
+  const [isAddQuestionModalOpen, setIsAddQuestionModalOpen] =
+    React.useState(false);
 
   const onAddQuestion = () => {
     setIsAddQuestionModalOpen(true);
@@ -31,6 +34,15 @@ const MiniGameModal: React.FC<MiniGameModalProps> = ({
 
   const onCloseAddQuestionModal = () => {
     setIsAddQuestionModalOpen(false);
+  };
+  const onDeleteQuestion = async (id_Question: string) => {
+    await dispatch(deleteQuestion(id_Question));
+    dispatch(
+      fetchQuestionsByTripAndCheckpoint({
+        id_TripQuest: tripQuestId,
+        id_CheckPoint: checkpointId,
+      })
+    );
   };
   useEffect(() => {
     if (isOpen) {
@@ -42,8 +54,14 @@ const MiniGameModal: React.FC<MiniGameModalProps> = ({
       );
     }
   }, [isOpen, tripQuestId, checkpointId, dispatch]);
-  const onDeleteQuestion = () => {};
-  // Nếu đang load dữ liệu hoặc có lỗi
+  const onCreate = () => {
+    dispatch(
+      fetchQuestionsByTripAndCheckpoint({
+        id_TripQuest: tripQuestId,
+        id_CheckPoint: checkpointId,
+      })
+    );
+  };
   if (loading) return <p>Đang tải câu hỏi...</p>;
   if (error) return <p>Lỗi: {error}</p>;
 
@@ -144,7 +162,7 @@ const MiniGameModal: React.FC<MiniGameModalProps> = ({
                   {/* Nút sửa và xoá */}
                   <div className="absolute bottom-3 right-3 flex space-x-2">
                     <button
-                      //   onClick={() => onEditQuestion(question.id_Question)}
+                      // onClick={() => onEditQuestion(question.id_Question)}
                       className="text-blue-600 hover:text-blue-800 focus:outline-none"
                       aria-label="Sửa câu hỏi"
                     >
@@ -164,7 +182,7 @@ const MiniGameModal: React.FC<MiniGameModalProps> = ({
                       </svg>
                     </button>
                     <button
-                      //   onClick={() => onDeleteQuestion(question.id_Question)}
+                      onClick={() => onDeleteQuestion(question.id_Question)}
                       className="text-red-600 hover:text-red-800 focus:outline-none"
                       aria-label="Xoá câu hỏi"
                     >
@@ -195,6 +213,7 @@ const MiniGameModal: React.FC<MiniGameModalProps> = ({
       <AddQuestionModal
         isOpen={isAddQuestionModalOpen}
         onClose={onCloseAddQuestionModal}
+        onCreate={onCreate}
         checkpointId={checkpointId}
         tripQuestId={tripQuestId}
       />

@@ -5,11 +5,13 @@ import {
   fetchAvailableCheckpoints,
   addTripQuestLocation,
   deleteTripQuestLocation,
+  cleanStoryQuestData
 } from "../redux/checkpointSlice";
 import { RootState, AppDispatch } from "../redux/store";
 import AddLocationModal from "./AddLocationModal";
 import DetailCheckPointModal from "./DetailCheckPointModal";
 import MiniGameModal from "./MiniGameModal";
+import StoryModal from "./StoryModal";
 
 interface EditLocationModalProps {
   closeModal: () => void;
@@ -70,6 +72,7 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
     setCurrentCheckpointId(null);
   };
   const handleCloseStory = () => {
+    dispatch(cleanStoryQuestData())
     setIsStoryOpen(false);
     setCurrentCheckpointId(null);
   };
@@ -77,7 +80,7 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
     setCurrentCheckpointId(id_CheckPoint);
     setIsMiniGameOpen(true);
   };
-  const handleStory= (id_CheckPoint: string, id_TripQuest: string) => {
+  const handleStory = (id_CheckPoint: string, id_TripQuest: string) => {
     setCurrentCheckpointId(id_CheckPoint);
     setIsStoryOpen(true);
   };
@@ -103,7 +106,6 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
     tripQuestId: string
   ) => {
     const id_TripQuest = tripQuestId;
-    console.log(id_CheckPoint, tripQuestId);
 
     try {
       await dispatch(
@@ -197,11 +199,14 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
                     }
                     className="text-black-500 hover:underline text-sm"
                   >
-                   Câu truyện
+                    Câu chuyện
                   </button>
                   <button
                     onClick={() =>
-                      handleDeleteCheckpoint(checkpoint.id_CheckPoint, tripQuestId)
+                      handleDeleteCheckpoint(
+                        checkpoint.id_CheckPoint,
+                        tripQuestId
+                      )
                     }
                     className="text-red-500 hover:underline text-sm"
                   >
@@ -312,10 +317,18 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
           />
         )}
 
-{isMiniGameOpen && currentCheckpointId && (
+        {isMiniGameOpen && currentCheckpointId && (
           <MiniGameModal
             isOpen={isMiniGameOpen}
             onClose={handleCloseMiniGame}
+            checkpointId={currentCheckpointId || ""}
+            tripQuestId={tripQuestId}
+          />
+        )}
+        {isStoryOpen && currentCheckpointId && (
+          <StoryModal
+            isOpen={isStoryOpen}
+            onClose={handleCloseStory}
             checkpointId={currentCheckpointId || ""}
             tripQuestId={tripQuestId}
           />

@@ -1,33 +1,35 @@
-import React, { useState } from 'react';
-import { createQuestion } from '../redux/quizzSlice';
+import React, { useState } from "react";
+import { createQuestion } from "../redux/quizzSlice";
 import { useDispatch, useSelector } from "react-redux";
-import { AppDispatch } from '../redux/store';
-import { IQuestion } from '../types/Province';
+import { AppDispatch } from "../redux/store";
+import { IQuestion } from "../types/Province";
 interface AddQuestionModalProps {
   isOpen: boolean;
   onClose: () => void;
   checkpointId: string;
   tripQuestId: string;
+  onCreate: () => void;
 }
-
-
 
 const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   isOpen,
   onClose,
   checkpointId,
   tripQuestId,
+  onCreate,
 }) => {
   const dispatch = useDispatch<AppDispatch>();
-  const [questionText, setQuestionText] = useState('');
+  const [questionText, setQuestionText] = useState("");
   const [points, setPoints] = useState(0);
-  const [questionType, setQuestionType] = useState<'multiple_choice' | 'open_answer' | 'true_false' | 'sort'>('multiple_choice');
+  const [questionType, setQuestionType] = useState<
+    "multiple_choice" | "open_answer" | "true_false" | "sort"
+  >("multiple_choice");
   const [correctAnswers, setCorrectAnswers] = useState<string[]>([]);
   const [wrongAnswers, setWrongAnswers] = useState<string[]>([]);
 
   const onAdd = async () => {
     const newQuestion: IQuestion = {
-      id_Question: 'generated_id', 
+      id_Question: "generated_id",
       questionText,
       questionType,
       correctAnswers,
@@ -38,77 +40,94 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
     };
 
     try {
-      dispatch(createQuestion(newQuestion));
+      await dispatch(createQuestion(newQuestion));
       onClose();
+      onCreate();
     } catch (error) {
-      console.error('Error adding question:', error);
+      console.error("Error adding question:", error);
     }
   };
 
-  const handleCorrectAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setCorrectAnswers(event.target.value.split(',').map((item) => item.trim()));
+  const handleCorrectAnswerChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCorrectAnswers(event.target.value.split(",").map((item) => item.trim()));
   };
 
-  const handleWrongAnswerChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setWrongAnswers(event.target.value.split(',').map((item) => item.trim()));
+  const handleWrongAnswerChange = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setWrongAnswers(event.target.value.split(",").map((item) => item.trim()));
   };
 
   const renderAnswerFields = () => {
     switch (questionType) {
-      case 'multiple_choice':
+      case "multiple_choice":
         return (
           <>
             <div className="mb-4">
-              <label htmlFor="correctAnswers" className="block text-sm font-medium">
+              <label
+                htmlFor="correctAnswers"
+                className="block text-sm font-medium"
+              >
                 Câu trả lời đúng (ngăn cách bằng dấu phẩy)
               </label>
               <input
                 id="correctAnswers"
                 type="text"
-                value={correctAnswers.join(', ')}
+                value={correctAnswers.join(", ")}
                 onChange={handleCorrectAnswerChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md"
               />
             </div>
 
             <div className="mb-4">
-              <label htmlFor="wrongAnswers" className="block text-sm font-medium">
+              <label
+                htmlFor="wrongAnswers"
+                className="block text-sm font-medium"
+              >
                 Câu trả lời sai (ngăn cách bằng dấu phẩy)
               </label>
               <input
                 id="wrongAnswers"
                 type="text"
-                value={wrongAnswers.join(', ')}
+                value={wrongAnswers.join(", ")}
                 onChange={handleWrongAnswerChange}
                 className="mt-1 block w-full border border-gray-300 rounded-md"
               />
             </div>
           </>
         );
-      case 'open_answer':
+      case "open_answer":
         return (
           <div className="mb-4">
-            <label htmlFor="correctAnswers" className="block text-sm font-medium">
+            <label
+              htmlFor="correctAnswers"
+              className="block text-sm font-medium"
+            >
               Câu trả lời đúng (để trống nếu không có nhiều câu trả lời)
             </label>
             <input
               id="correctAnswers"
               type="text"
-              value={correctAnswers.join(', ')}
+              value={correctAnswers.join(", ")}
               onChange={handleCorrectAnswerChange}
               className="mt-1 block w-full border border-gray-300 rounded-md"
             />
           </div>
         );
-      case 'true_false':
+      case "true_false":
         return (
           <div className="mb-4">
-            <label htmlFor="correctAnswers" className="block text-sm font-medium">
+            <label
+              htmlFor="correctAnswers"
+              className="block text-sm font-medium"
+            >
               Câu trả lời đúng
             </label>
             <select
               id="correctAnswers"
-              value={correctAnswers[0] || ''}
+              value={correctAnswers[0] || ""}
               onChange={(e) => setCorrectAnswers([e.target.value])}
               className="mt-1 block w-full border border-gray-300 rounded-md"
             >
@@ -117,16 +136,19 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             </select>
           </div>
         );
-      case 'sort':
+      case "sort":
         return (
           <div className="mb-4">
-            <label htmlFor="correctAnswers" className="block text-sm font-medium">
+            <label
+              htmlFor="correctAnswers"
+              className="block text-sm font-medium"
+            >
               Câu trả lời đúng (ngăn cách bằng dấu phẩy)
             </label>
             <input
               id="correctAnswers"
               type="text"
-              value={correctAnswers.join(', ')}
+              value={correctAnswers.join(", ")}
               onChange={handleCorrectAnswerChange}
               className="mt-1 block w-full border border-gray-300 rounded-md"
             />
@@ -197,7 +219,15 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           <select
             id="questionType"
             value={questionType}
-            onChange={(e) => setQuestionType(e.target.value as 'multiple_choice' | 'open_answer' | 'true_false' | 'sort')}
+            onChange={(e) =>
+              setQuestionType(
+                e.target.value as
+                  | "multiple_choice"
+                  | "open_answer"
+                  | "true_false"
+                  | "sort"
+              )
+            }
             className="mt-1 block w-full border border-gray-300 rounded-md"
           >
             <option value="multiple_choice">Multiple Choice</option>

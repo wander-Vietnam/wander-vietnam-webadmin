@@ -17,7 +17,8 @@ interface CheckpointState {
   error: string | null;
   fetchById: boolean;
   checkpointDetail: CheckpointsDetailResponse | null;
-  allCheckpoint: AllCheckpoint[]
+  allCheckpoint: AllCheckpoint[];
+  storyQuestData: any;
 }
 
 const initialState: CheckpointState = {
@@ -28,7 +29,8 @@ const initialState: CheckpointState = {
   fetchById: false,
   error: null,
   checkpointDetail: null,
-  allCheckpoint: []
+  allCheckpoint: [],
+  storyQuestData: null,
 };
 export const addCheckPoint = createAsyncThunk<
   string,
@@ -67,6 +69,27 @@ export const updateCheckpoint = createAsyncThunk<
     }
   }
 );
+export const getStoryQuestByIds = createAsyncThunk<
+  any,
+  { id_TripQuest: string; id_CheckPoint: string },
+  { rejectValue: string }
+>(
+  "checkpoints/getStoryQuestByIds",
+  async ({ id_TripQuest, id_CheckPoint }, { rejectWithValue }) => {
+    try {
+      const response = await apiClient.post("/checkpoints/get-story-quest", {
+        id_TripQuest,
+        id_CheckPoint,
+      });
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data || "Failed to fetch story quest by IDs"
+      );
+    }
+  }
+);
+
 export const deleteTripQuestLocation = createAsyncThunk<
   void,
   { id_CheckPoint: string; id_TripQuest: string },
@@ -103,13 +126,13 @@ export const fetchCheckpointById = createAsyncThunk<
   }
 });
 export const fetchAllCheckpoint = createAsyncThunk<
-  AllCheckpoint[],  // Return type
-  void,              // Argument type
+  AllCheckpoint[], // Return type
+  void, // Argument type
   { rejectValue: string }
 >("checkpoints/fetchAllCheckpoints", async (_, { rejectWithValue }) => {
   try {
     const response = await apiClient.get("/checkpoints/get-all-checkpoint");
-    return response.data;  // Return the fetched data
+    return response.data; // Return the fetched data
   } catch (error: any) {
     return rejectWithValue(
       error.response?.data || "Failed to fetch all checkpoints"
@@ -120,21 +143,16 @@ export const deleteCheckpoint = createAsyncThunk<
   void,
   string,
   { rejectValue: string }
->(
-  "checkpoints/deleteCheckpoint",
-  async (id, { rejectWithValue }) => {
-    try {
-      // Gọi API DELETE
-      await apiClient.delete(`/checkpoints/delete/${id}`);
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data || "Failed to delete checkpoint"
-      );
-    }
+>("checkpoints/deleteCheckpoint", async (id, { rejectWithValue }) => {
+  try {
+    // Gọi API DELETE
+    await apiClient.delete(`/checkpoints/delete/${id}`);
+  } catch (error: any) {
+    return rejectWithValue(
+      error.response?.data || "Failed to delete checkpoint"
+    );
   }
-);
-
-
+});
 
 // Thunk để lấy tất cả checkpoints
 export const fetchAllCheckpoints = createAsyncThunk<
@@ -198,7 +216,7 @@ export const fetchAvailableCheckpoints = createAsyncThunk<
     const response = await apiClient.get(
       `/checkpoints/get-available-checkpoints/${idTripQuest}`
     );
-    return response.data; 
+    return response.data;
   } catch (error: any) {
     return rejectWithValue(
       error.response?.data || "Failed to fetch available checkpoints"
@@ -209,7 +227,11 @@ export const fetchAvailableCheckpoints = createAsyncThunk<
 const checkpointSlice = createSlice({
   name: "checkpoints",
   initialState,
-  reducers: {},
+  reducers: {
+    cleanStoryQuestData: (state) => {
+      state.storyQuestData = null;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // Xử lý fetchAllCheckpoints
@@ -316,7 +338,7 @@ const checkpointSlice = createSlice({
       })
       .addCase(fetchAllCheckpoint.fulfilled, (state, action) => {
         state.loading = false;
-        state.allCheckpoint = action.payload;  // Store the fetched data
+        state.allCheckpoint = action.payload; // Store the fetched data
       })
       .addCase(fetchAllCheckpoint.rejected, (state, action) => {
         state.loading = false;
@@ -332,7 +354,21 @@ const checkpointSlice = createSlice({
       .addCase(deleteCheckpoint.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload || "Failed to delete checkpoint";
+      })
+      .addCase(getStoryQuestByIds.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(getStoryQuestByIds.fulfilled, (state, action) => {
+        state.loading = false;
+        // Save the fetched story quest data into the state
+        state.storyQuestData = action.payload; // Assuming `storyQuestData` is part of your state
+      })
+      .addCase(getStoryQuestByIds.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload || "Failed to fetch story quest by IDs";
       });
   },
 });
+export const { cleanStoryQuestData } = checkpointSlice.actions;
 export default checkpointSlice.reducer;
