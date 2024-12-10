@@ -1,6 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getStoryQuestByIds } from "../redux/checkpointSlice"; // Import the action
+import { createTextToSpeech } from "../redux/textToSpeechSlice"; // Import the action to update text-to-speech
 
 import { AppDispatch, RootState } from "../redux/store";
 
@@ -24,8 +25,12 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
     (state: RootState) => state.checkpoint
   );
 
+  const [storyQuestInput, setStoryQuestInput] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
   useEffect(() => {
-    if (!storyQuestData && isOpen) { 
+    if (!storyQuestData && isOpen) {
       dispatch(
         getStoryQuestByIds({
           id_TripQuest: tripQuestId,
@@ -34,7 +39,36 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
       );
     }
   }, [dispatch, tripQuestId, checkpointId, isOpen, storyQuestData]);
-  
+
+  useEffect(() => {
+    if (storyQuestData) {
+      setStoryQuestInput(storyQuestData.storyQuest || "");
+    }
+  }, [storyQuestData]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setStoryQuestInput(e.target.value);
+    // Hide the success message when the user starts typing
+    setSuccessMessage(null);
+  };
+
+  const handleSubmit = () => {
+    const updatedData = {
+      id_TripQuest: tripQuestId,
+      id_CheckPoint: checkpointId,
+      storyQuest: storyQuestInput,
+    };
+
+    dispatch(createTextToSpeech(updatedData)) // Call the API to update the story quest
+      .then(() => {
+        setSuccessMessage("Story quest updated successfully!"); // Show success message
+        setErrorMessage(null); // Clear any error message
+      })
+      .catch(() => {
+        setErrorMessage("Failed to update story quest."); // Show error message
+        setSuccessMessage(null); // Clear success message if there's an error
+      });
+  };
 
   if (!isOpen) return null;
 
@@ -44,7 +78,7 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
         <button
           onClick={onClose}
           className="absolute top-3 right-3 text-gray-600 hover:text-gray-900 focus:outline-none"
-          aria-label="Đóng modal"
+          aria-label="Close modal"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -70,23 +104,39 @@ const StoryModal: React.FC<MiniGameModalProps> = ({
           <div>
             {/* Display storyQuest data */}
             <h2 className="text-xl font-semibold">Story Quest Details</h2>
-            <p>
-              {storyQuestData?.storyQuest || "No story quest available"}
-            </p>{" "}
-            {/* Display the storyQuest */}
-            {storyQuestData?.link_StoryQuest ? (
-              <div>
-                <a
-                  href={storyQuestData.link_StoryQuest}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-500 hover:text-blue-700"
-                >
-                  View Story Quest Link
-                </a>
+
+            {/* Display and allow editing of storyQuest */}
+            <div className="mb-4">
+              <label htmlFor="storyQuest" className="block text-gray-700">
+                Story Quest:
+              </label>
+              <input
+                type="text"
+                id="storyQuest"
+                value={storyQuestInput}
+                onChange={handleInputChange}
+                className="w-full mt-2 p-2 border border-gray-300 rounded"
+                placeholder="Edit story quest"
+              />
+            </div>
+
+            <button
+              onClick={handleSubmit}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded"
+            >
+              Submit
+            </button>
+
+            {/* Display success or error message */}
+            {successMessage && (
+              <div className="mt-4 text-green-500 bg-green-100 p-2 rounded-md">
+                {successMessage}
               </div>
-            ) : (
-              <p>No link available</p>
+            )}
+            {errorMessage && (
+              <div className="mt-4 text-red-500 bg-red-100 p-2 rounded-md">
+                {errorMessage}
+              </div>
             )}
           </div>
         )}

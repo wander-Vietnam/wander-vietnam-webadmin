@@ -10,6 +10,7 @@ import cityReducer from './citySlice';
 import quizzReducer from './quizzSlice';
 import reviewReducer from './reviewSlice';
 import purchaseReducer from './purchaseSlice';
+import textToSpeechReducer from './textToSpeechSlice';
 import axios from 'axios';
 const store = configureStore({
   reducer: {
@@ -23,7 +24,8 @@ const store = configureStore({
     cities: cityReducer,
     quizz: quizzReducer,
     reviews: reviewReducer,
-    purchase: purchaseReducer
+    purchase: purchaseReducer,
+    textToSpeech: textToSpeechReducer,  
   },
 });
 const apiClient = axios.create({
