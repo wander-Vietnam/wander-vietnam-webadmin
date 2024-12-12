@@ -150,7 +150,7 @@ const MiniGameModal: React.FC<MiniGameModalProps> = ({
 
               {question.wrongAnswers && question.wrongAnswers.length > 0 && (
                 <div className="mt-4 mb-2">
-                  <h5 className="font-semibold">Câu trả lời sai:</h5>
+                  <h5 className="font-semibold">Tất cả câu trả lời:</h5>
                   <div className="flex flex-wrap space-x-2">
                     {question.wrongAnswers.map((answer, index) => (
                       <span
@@ -187,6 +187,28 @@ const MiniGameModal: React.FC<MiniGameModalProps> = ({
                   </svg>
                 </button>
               </div>
+              <button
+                onClick={() => {
+                  /* Hàm xử lý chỉnh sửa */
+                }}
+                className="bg-blue-600 text-white hover:bg-blue-700 rounded-md p-2 focus:outline-none"
+                aria-label="Chỉnh sửa câu hỏi"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 4v16m8-8H4"
+                  />
+                </svg>
+              </button>
             </div>
           ))}
         </div>

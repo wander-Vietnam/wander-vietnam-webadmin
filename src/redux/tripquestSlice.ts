@@ -57,14 +57,34 @@ export const createTripquest = createAsyncThunk(
     }
   }
 );
-
+export const updateIndex = createAsyncThunk(
+  "checkpoints/updateIndex",
+  async (
+    updateData: {
+      id_TripQuest: string;
+      id_CheckPoint: string;
+      newIndex: number;
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await apiClient.post(
+        "checkpoints/update-index",
+        updateData
+      );
+      return response.data; // Dữ liệu trả về sau khi cập nhật thành công
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 export const updateTripquestStatus = createAsyncThunk(
   "tripquest/updateStatus",
   async (
     updateData: { id_TripQuest: string; isActive: boolean },
     { rejectWithValue }
   ) => {
-    console.log("updateTripQuestStatus", updateData)
+    console.log("updateTripQuestStatus", updateData);
     try {
       const response = await apiClient.post(
         "tripquest/update-tripquest-status",
@@ -125,7 +145,10 @@ const tripquestSlice = createSlice({
           "Failed to update tripquest status:",
           action.error.message
         );
-      });
+      })
+      .addCase(updateIndex.pending, (state) => {})
+      .addCase(updateIndex.fulfilled, (state, action) => {})
+      .addCase(updateIndex.rejected, (state, action) => {});
   },
 });
 

@@ -1,5 +1,3 @@
-import { Question } from "./Question";
-
 export interface Checkpoint {
   id_CheckPoint: string;
   checkpointName: string;
@@ -9,7 +7,8 @@ export interface Checkpoint {
   address: string;
   createdAt: string;
   updatedAt: string;
-  questions: Question[];
+  index: number;
+  indexes: [];
 }
 export interface AllCheckpointsResponse {
   id_CheckPoint: string;
@@ -65,5 +64,3 @@ export interface AllCheckpoint {
   isDeleted: boolean;
   cityName: string;
 }
-
-

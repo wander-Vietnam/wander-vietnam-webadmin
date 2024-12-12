@@ -5,8 +5,9 @@ import {
   fetchAvailableCheckpoints,
   addTripQuestLocation,
   deleteTripQuestLocation,
-  cleanStoryQuestData
+  cleanStoryQuestData,
 } from "../redux/checkpointSlice";
+import { updateIndex } from "../redux/tripquestSlice";
 import { RootState, AppDispatch } from "../redux/store";
 import AddLocationModal from "./AddLocationModal";
 import DetailCheckPointModal from "./DetailCheckPointModal";
@@ -72,7 +73,7 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
     setCurrentCheckpointId(null);
   };
   const handleCloseStory = () => {
-    dispatch(cleanStoryQuestData())
+    dispatch(cleanStoryQuestData());
     setIsStoryOpen(false);
     setCurrentCheckpointId(null);
   };
@@ -101,6 +102,25 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
       console.error("Error adding checkpoint:", error);
     }
   };
+  const handleIndexChange = async (
+    e: React.ChangeEvent<HTMLSelectElement>,
+    id_CheckPoint: string
+  ) => {
+    const newIndex = Number(e.target.value); // Lấy giá trị mới từ dropdown
+
+    try {
+      // Gọi API để cập nhật index cho checkpoint
+      await dispatch(
+        updateIndex({ id_TripQuest: tripQuestId, id_CheckPoint, newIndex })
+      ).unwrap();
+
+      // Cập nhật lại danh sách checkpoints sau khi thay đổi index thành công
+      dispatch(fetchCheckpointsByTripquest(tripQuestId));
+    } catch (error) {
+      console.error("Error updating index:", error);
+    }
+  };
+
   const handleDeleteCheckpoint = async (
     id_CheckPoint: string,
     tripQuestId: string
@@ -176,6 +196,31 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
                 <p className="text-sm text-gray-600">
                   Giờ hoạt động: {checkpoint.operatingHours}
                 </p>
+
+                {/* Dropdown để chọn index */}
+                <div className="text-sm text-gray-600">
+                  <label
+                    htmlFor={`index-${checkpoint.id_CheckPoint}`}
+                    className="block"
+                  >
+                    Chọn index:
+                  </label>
+                  <select
+                    id={`index-${checkpoint.id_CheckPoint}`}
+                    value={checkpoint.index}
+                    onChange={(e) =>
+                      handleIndexChange(e, checkpoint.id_CheckPoint)
+                    }
+                    className="border rounded px-2 py-1"
+                  >
+                    {checkpoint.indexes.map((index: number) => (
+                      <option key={index} value={index}>
+                        {index}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
                 <div className="mt-2 flex space-x-4">
                   <button
                     onClick={() =>

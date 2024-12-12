@@ -27,13 +27,21 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
   >("multiple_choice");
   const [correctAnswers, setCorrectAnswers] = useState<string[]>([]);
   const [wrongAnswers, setWrongAnswers] = useState<string[]>([]);
-
+const [wrongAnswerInput, setWrongAnswerInput] = useState<string>("");
+const [sortAnswerInput, setSortAnswerInput] = useState<string>("");
+let updatedCorrectAnswers = correctAnswers;
   const onAdd = async () => {
+    console.log("correctAnswers",correctAnswers)
+    if (questionType === "true_false" && correctAnswers.length === 0) {
+      console.log("correctAnswers set to Đúng");
+      updatedCorrectAnswers = ["Đúng"];
+      setCorrectAnswers(updatedCorrectAnswers);
+    }
     const newQuestion: IQuestion = {
       id_Question: "generated_id",
       questionText,
       questionType,
-      correctAnswers,
+      correctAnswers: updatedCorrectAnswers,
       wrongAnswers,
       points,
       id_CheckPoint: checkpointId,
@@ -48,54 +56,96 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
       console.error("Error adding question:", error);
     }
   };
-
-  const handleCorrectAnswerChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCorrectAnswers(event.target.value.split(",").map((item) => item.trim()));
+  const handleAddWrongAnswer = () => {
+    if (wrongAnswerInput.trim() !== "") {
+      setWrongAnswers([...wrongAnswers, wrongAnswerInput.trim()]);
+      setWrongAnswerInput(""); // Xóa input sau khi thêm
+    }
   };
-
-  const handleWrongAnswerChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setWrongAnswers(event.target.value.split(",").map((item) => item.trim()));
+  
+  // Xóa câu trả lời sai khỏi danh sách
+  const handleRemoveWrongAnswer = (index: number) => {
+    setWrongAnswers(wrongAnswers.filter((_, i) => i !== index));
   };
-
+  // Kiểm tra tính hợp lệ: Câu trả lời đúng phải có trong tất cả câu trả lời sai
+  const isValid =
+    correctAnswers.length > 0 && wrongAnswers.includes(correctAnswers[0]);
+    const handleAddSortAnswer = () => {
+      if (sortAnswerInput.trim() !== "") {
+        setCorrectAnswers([...correctAnswers, sortAnswerInput.trim()]);
+        setSortAnswerInput(""); // Xóa input sau khi thêm
+      }
+    };
+    
+    // Xóa câu trả lời đúng khỏi danh sách
+    const handleRemoveSortAnswer = (index: number) => {
+      setCorrectAnswers(correctAnswers.filter((_, i) => i !== index));
+    };
   const renderAnswerFields = () => {
     switch (questionType) {
       case "multiple_choice":
         return (
           <>
+            {/* Nhập câu trả lời đúng */}
             <div className="mb-4">
               <label
                 htmlFor="correctAnswers"
                 className="block text-sm font-medium text-blue-700"
               >
-                Câu trả lời đúng (ngăn cách bằng dấu phẩy)
+                Câu trả lời đúng
               </label>
               <input
                 id="correctAnswers"
                 type="text"
-                value={correctAnswers.join(", ")}
-                onChange={handleCorrectAnswerChange}
+                value={correctAnswers[0] || ""} // Chỉ có 1 câu trả lời đúng
+                onChange={(e) => setCorrectAnswers([e.target.value])}
                 className="mt-1 block w-full border-2 border-blue-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
 
+            {/* Nhập câu trả lời sai */}
             <div className="mb-4">
               <label
-                htmlFor="wrongAnswers"
+                htmlFor="wrongAnswerInput"
                 className="block text-sm font-medium text-red-700"
               >
-                Câu trả lời sai (ngăn cách bằng dấu phẩy)
+                Thêm câu trả lời
               </label>
-              <input
-                id="wrongAnswers"
-                type="text"
-                value={wrongAnswers.join(", ")}
-                onChange={handleWrongAnswerChange}
-                className="mt-1 block w-full border-2 border-red-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-red-500"
-              />
+              <div className="flex">
+                <input
+                  id="wrongAnswerInput"
+                  type="text"
+                  value={wrongAnswerInput} // Biến tạm lưu câu trả lời đang nhập
+                  onChange={(e) => setWrongAnswerInput(e.target.value)}
+                  className="flex-grow mt-1 block w-full border-2 border-red-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-red-500"
+                />
+                <button
+                  onClick={handleAddWrongAnswer}
+                  className="ml-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none"
+                >
+                  Thêm
+                </button>
+              </div>
+            </div>
+
+            {/* Hiển thị danh sách câu trả lời sai */}
+            <div className="mb-4">
+              <h3 className="text-sm font-medium text-gray-700">
+                Danh sách câu trả lời
+              </h3>
+              <ul className="mt-2 space-y-2">
+                {wrongAnswers.map((answer, index) => (
+                  <li key={index} className="flex items-center justify-between">
+                    <span>{answer}</span>
+                    <button
+                      onClick={() => handleRemoveWrongAnswer(index)}
+                      className="text-red-600 hover:underline"
+                    >
+                      Xóa
+                    </button>
+                  </li>
+                ))}
+              </ul>
             </div>
           </>
         );
@@ -111,12 +161,13 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             <input
               id="correctAnswers"
               type="text"
-              value={correctAnswers.join(", ")}
-              onChange={handleCorrectAnswerChange}
+              value={correctAnswers[0] || ""} // Hiển thị giá trị đầu tiên nếu có, hoặc chuỗi rỗng nếu không
+              onChange={(e) => setCorrectAnswers([e.target.value])} // Lưu giá trị nhập vào như một mảng có 1 phần tử
               className="mt-1 block w-full border-2 border-blue-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
         );
+
       case "true_false":
         return (
           <div className="mb-4">
@@ -128,33 +179,64 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
             </label>
             <select
               id="correctAnswers"
-              value={correctAnswers[0] || ""}
+              value={correctAnswers.length > 0 ? correctAnswers[0] : "Đúng"} // Kiểm tra và dùng "true" nếu không có giá trị
               onChange={(e) => setCorrectAnswers([e.target.value])}
               className="mt-1 block w-full border-2 border-blue-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
-              <option value="true">True</option>
-              <option value="false">False</option>
+              <option value="Đúng">Đúng</option>
+              <option value="Sai">Sai</option>
             </select>
           </div>
         );
-      case "sort":
-        return (
-          <div className="mb-4">
-            <label
-              htmlFor="correctAnswers"
-              className="block text-sm font-medium text-blue-700"
-            >
-              Câu trả lời đúng (ngăn cách bằng dấu phẩy)
-            </label>
-            <input
-              id="correctAnswers"
-              type="text"
-              value={correctAnswers.join(", ")}
-              onChange={handleCorrectAnswerChange}
-              className="mt-1 block w-full border-2 border-blue-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-        );
+
+        case "sort":
+          return (
+            <>
+              {/* Nhập câu trả lời đúng */}
+              <div className="mb-4">
+                <label
+                  htmlFor="sortAnswerInput"
+                  className="block text-sm font-medium text-blue-700"
+                >
+                  Thêm câu trả lời đúng
+                </label>
+                <div className="flex">
+                  <input
+                    id="sortAnswerInput"
+                    type="text"
+                    value={sortAnswerInput} 
+                    onChange={(e) => setSortAnswerInput(e.target.value)}
+                    className="flex-grow mt-1 block w-full border-2 border-blue-500 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  />
+                  <button
+                    onClick={handleAddSortAnswer}
+                    className="ml-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none"
+                  >
+                    Thêm
+                  </button>
+                </div>
+              </div>
+        
+              {/* Hiển thị danh sách câu trả lời đúng */}
+              <div className="mb-4">
+                <h3 className="text-sm font-medium text-gray-700">Danh sách câu trả lời đúng</h3>
+                <ul className="mt-2 space-y-2">
+                  {correctAnswers.map((answer, index) => (
+                    <li key={index} className="flex items-center justify-between">
+                      <span>{answer}</span>
+                      <button
+                        onClick={() => handleRemoveSortAnswer(index)}
+                        className="text-red-600 hover:underline"
+                      >
+                        Xóa
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </>
+          );
+        
       default:
         return null;
     }
@@ -186,10 +268,15 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
           </svg>
         </button>
 
-        <h2 className="text-xl font-bold mb-6 text-center text-blue-600">Thêm câu hỏi mới</h2>
+        <h2 className="text-xl font-bold mb-6 text-center text-blue-600">
+          Thêm câu hỏi mới
+        </h2>
 
         <div className="mb-4">
-          <label htmlFor="questionText" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="questionText"
+            className="block text-sm font-medium text-gray-700"
+          >
             Nội dung câu hỏi
           </label>
           <input
@@ -202,7 +289,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         </div>
 
         <div className="mb-4">
-          <label htmlFor="points" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="points"
+            className="block text-sm font-medium text-gray-700"
+          >
             Điểm
           </label>
           <input
@@ -215,7 +305,10 @@ const AddQuestionModal: React.FC<AddQuestionModalProps> = ({
         </div>
 
         <div className="mb-4">
-          <label htmlFor="questionType" className="block text-sm font-medium text-gray-700">
+          <label
+            htmlFor="questionType"
+            className="block text-sm font-medium text-gray-700"
+          >
             Loại câu hỏi
           </label>
           <select
