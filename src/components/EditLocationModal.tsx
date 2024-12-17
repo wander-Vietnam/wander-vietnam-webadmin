@@ -18,11 +18,13 @@ import { Checkpoint } from "../types/Checkpoint";
 interface EditLocationModalProps {
   closeModal: () => void;
   tripQuestId: string;
+  onUpdateSucess: () => void;
 }
 
 const EditLocationModal: React.FC<EditLocationModalProps> = ({
   closeModal,
   tripQuestId,
+  onUpdateSucess
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -62,20 +64,18 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
     const { destination, source } = result;
     if (!destination) return; // Nếu không có điểm đến, bỏ qua
 
-    // Cập nhật lại thứ tự của các checkpoint sau khi kéo thả
     const items = Array.from(checkpoints);
     const [reorderedItem] = items.splice(source.index, 1);
     items.splice(destination.index, 0, reorderedItem);
     const newIndexes = items.map((item) => item.index);
-    console.log("New index order:", newIndexes);
     const payload = {
       id_TripQuest: tripQuestId,
       newIndex: newIndexes,
     };
     setCheckpointData(items);
-    console.log("Payload:", payload);
     await dispatch(updateMultipleIndexes(payload));
     dispatch(fetchCheckpointsByTripquest(tripQuestId));
+    onUpdateSucess()
   };
   const handleCloseAddLocationModal = () => {
     setShowAddLocationModal(false);
@@ -129,15 +129,12 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
     e: React.ChangeEvent<HTMLSelectElement>,
     id_CheckPoint: string
   ) => {
-    const newIndex = Number(e.target.value); // Lấy giá trị mới từ dropdown
+    const newIndex = Number(e.target.value);
 
     try {
-      // Gọi API để cập nhật index cho checkpoint
       await dispatch(
         updateIndex({ id_TripQuest: tripQuestId, id_CheckPoint, newIndex })
       ).unwrap();
-
-      // Cập nhật lại danh sách checkpoints sau khi thay đổi index thành công
       dispatch(fetchCheckpointsByTripquest(tripQuestId));
     } catch (error) {
       console.error("Error updating index:", error);

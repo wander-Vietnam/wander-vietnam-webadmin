@@ -24,8 +24,6 @@ const Creator: React.FC = () => {
     setIsCreateModalOpen(false);
     dispatch(fetchTripquestCards());
   };
-  console.log("cards", cards);
-
   const openEditModal = (id: string) => {
     setSelectedTripQuestId(id);
     setIsEditModalOpen(true);
@@ -53,6 +51,9 @@ const Creator: React.FC = () => {
   const isValidCheckpoint = (checkpoint: any) => {
     return checkpoint.checkpointName && checkpoint.address;
   };
+  const onUpdateSucess = () => {
+    dispatch(fetchTripquestCards());
+  };
 
   return (
     <div className="container mx-auto p-6">
@@ -74,6 +75,7 @@ const Creator: React.FC = () => {
         <EditLocationModal
           tripQuestId={selectedTripQuestId}
           closeModal={closeEditModal}
+          onUpdateSucess={onUpdateSucess}
         />
       )}
 
