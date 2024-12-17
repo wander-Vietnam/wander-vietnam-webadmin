@@ -20,11 +20,13 @@ L.Icon.Default.mergeOptions({
 interface AddLocationModalProps {
   showModal: boolean;
   closeModal: () => void;
+  onAddCheckpointSuccess: () => void; 
 }
 
 const AddLocationModal: React.FC<AddLocationModalProps> = ({
   showModal,
   closeModal,
+  onAddCheckpointSuccess
 }) => {
   const dispatch = useDispatch<AppDispatch>();
   const cities = useSelector((state: RootState) => state.cities.cities);
@@ -101,6 +103,7 @@ const AddLocationModal: React.FC<AddLocationModalProps> = ({
       );
       if (checkpointId) {
         closeModal();
+        onAddCheckpointSuccess();
       }
     } catch (error: any) {
       setError(error.message || "Error adding checkpoint.");

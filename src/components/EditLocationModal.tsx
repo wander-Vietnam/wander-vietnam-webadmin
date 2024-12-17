@@ -160,6 +160,10 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
       console.error("Error adding checkpoint:", error);
     }
   };
+  const onAddCheckpointSuccess = () => {
+    dispatch(fetchCheckpointsByTripquest(tripQuestId));
+    dispatch(fetchAvailableCheckpoints(tripQuestId));
+  };
   if (loading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center z-50 bg-gray-500 bg-opacity-50">
@@ -397,6 +401,7 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
         <AddLocationModal
           showModal={showAddLocationModal}
           closeModal={handleCloseAddLocationModal}
+          onAddCheckpointSuccess={onAddCheckpointSuccess}
         />
 
         {showDetailModal && selectedCheckpoint !== null && (
