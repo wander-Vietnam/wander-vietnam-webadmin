@@ -7,13 +7,14 @@ import {
   deleteTripQuestLocation,
   cleanStoryQuestData,
 } from "../redux/checkpointSlice";
-import { updateIndex } from "../redux/tripquestSlice";
+import { updateIndex, updateMultipleIndexes } from "../redux/tripquestSlice";
 import { RootState, AppDispatch } from "../redux/store";
 import AddLocationModal from "./AddLocationModal";
 import DetailCheckPointModal from "./DetailCheckPointModal";
 import MiniGameModal from "./MiniGameModal";
 import StoryModal from "./StoryModal";
-
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
+import { Checkpoint } from "../types/Checkpoint";
 interface EditLocationModalProps {
   closeModal: () => void;
   tripQuestId: string;
@@ -38,6 +39,7 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
   const { checkpoints, availableCheckpoints, loading, error } = useSelector(
     (state: RootState) => state.checkpoint
   );
+  const [checkpointData, setCheckpointData] = useState<Checkpoint[]>([]);
   const [showAvailableCheckpoints, setShowAvailableCheckpoints] =
     useState(false);
   const [showAddLocationModal, setShowAddLocationModal] = useState(false);
@@ -49,11 +51,32 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
     dispatch(fetchAvailableCheckpoints(tripQuestId));
     setShowAvailableCheckpoints(true);
   }, [dispatch, tripQuestId]);
+  useEffect(() => {
+    setCheckpointData(checkpoints);
+  }, [checkpoints]);
 
   const handleOpenAddLocationModal = () => {
     setShowAddLocationModal(true);
   };
+  const handleOnDragEnd = async (result: any) => {
+    const { destination, source } = result;
+    if (!destination) return; // Nếu không có điểm đến, bỏ qua
 
+    // Cập nhật lại thứ tự của các checkpoint sau khi kéo thả
+    const items = Array.from(checkpoints);
+    const [reorderedItem] = items.splice(source.index, 1);
+    items.splice(destination.index, 0, reorderedItem);
+    const newIndexes = items.map((item) => item.index);
+    console.log("New index order:", newIndexes);
+    const payload = {
+      id_TripQuest: tripQuestId,
+      newIndex: newIndexes,
+    };
+    setCheckpointData(items);
+    console.log("Payload:", payload);
+    await dispatch(updateMultipleIndexes(payload));
+    dispatch(fetchCheckpointsByTripquest(tripQuestId));
+  };
   const handleCloseAddLocationModal = () => {
     setShowAddLocationModal(false);
   };
@@ -182,90 +205,113 @@ const EditLocationModal: React.FC<EditLocationModalProps> = ({
         </button>
         <h3 className="text-xl font-semibold mb-4">Danh sách địa điểm</h3>
 
-        {checkpoints.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4">
-            {checkpoints.map((checkpoint) => (
+        <DragDropContext onDragEnd={handleOnDragEnd}>
+          <Droppable droppableId="checkpoints">
+            {(provided) => (
               <div
-                key={checkpoint.id_CheckPoint}
-                className="border p-2 rounded shadow"
+                className="grid grid-cols-1 gap-4"
+                ref={provided.innerRef}
+                {...provided.droppableProps}
               >
-                <h4 className="text-lg font-medium">
-                  {checkpoint.checkpointName}
-                </h4>
-                <p className="text-sm text-gray-600">{checkpoint.address}</p>
-                <p className="text-sm text-gray-600">
-                  Giờ hoạt động: {checkpoint.operatingHours}
-                </p>
+                {checkpointData.map((checkpoint, index) => (
+                  <Draggable
+                    key={checkpoint.id_CheckPoint}
+                    draggableId={checkpoint.id_CheckPoint.toString()}
+                    index={index}
+                  >
+                    {(provided) => (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                        className="border p-2 rounded shadow"
+                      >
+                        <h4 className="text-lg font-medium">
+                          {checkpoint.checkpointName}
+                        </h4>
+                        <p className="text-sm text-gray-600">
+                          {checkpoint.address}
+                        </p>
+                        <p className="text-sm text-gray-600">
+                          Giờ hoạt động: {checkpoint.operatingHours}
+                        </p>
 
-                {/* Dropdown để chọn index */}
-                <div className="text-sm text-gray-600">
-                  <label
-                    htmlFor={`index-${checkpoint.id_CheckPoint}`}
-                    className="block"
-                  >
-                    Chọn index:
-                  </label>
-                  <select
-                    id={`index-${checkpoint.id_CheckPoint}`}
-                    value={checkpoint.index}
-                    onChange={(e) =>
-                      handleIndexChange(e, checkpoint.id_CheckPoint)
-                    }
-                    className="border rounded px-2 py-1"
-                  >
-                    {checkpoint.indexes.map((index: number) => (
-                      <option key={index} value={index}>
-                        {index}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+                        {/* Dropdown để chọn index */}
+                        <div className="text-sm text-gray-600">
+                          <label
+                            htmlFor={`index-${checkpoint.id_CheckPoint}`}
+                            className="block"
+                          >
+                            Chọn vị trí:
+                          </label>
+                          <select
+                            id={`index-${checkpoint.id_CheckPoint}`}
+                            value={checkpoint.index}
+                            onChange={(e) =>
+                              handleIndexChange(e, checkpoint.id_CheckPoint)
+                            }
+                            className="border rounded px-2 py-1"
+                          >
+                            {checkpoint.indexes.map((index: number) => (
+                              <option key={index} value={index}>
+                                {index}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
 
-                <div className="mt-2 flex space-x-4">
-                  <button
-                    onClick={() =>
-                      handleViewDetails(checkpoint.id_CheckPoint, tripQuestId)
-                    }
-                    className="text-blue-500 hover:underline text-sm"
-                  >
-                    Xem chi tiết
-                  </button>
-                  <button
-                    onClick={() =>
-                      handleMiniGame(checkpoint.id_CheckPoint, tripQuestId)
-                    }
-                    className="text-green-500 hover:underline text-sm"
-                  >
-                    Mini Game
-                  </button>
-                  <button
-                    onClick={() =>
-                      handleStory(checkpoint.id_CheckPoint, tripQuestId)
-                    }
-                    className="text-black-500 hover:underline text-sm"
-                  >
-                    Câu chuyện
-                  </button>
-                  <button
-                    onClick={() =>
-                      handleDeleteCheckpoint(
-                        checkpoint.id_CheckPoint,
-                        tripQuestId
-                      )
-                    }
-                    className="text-red-500 hover:underline text-sm"
-                  >
-                    Xoá
-                  </button>
-                </div>
+                        <div className="mt-2 flex space-x-4">
+                          <button
+                            onClick={() =>
+                              handleViewDetails(
+                                checkpoint.id_CheckPoint,
+                                tripQuestId
+                              )
+                            }
+                            className="text-blue-500 hover:underline text-sm"
+                          >
+                            Xem chi tiết
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleMiniGame(
+                                checkpoint.id_CheckPoint,
+                                tripQuestId
+                              )
+                            }
+                            className="text-green-500 hover:underline text-sm"
+                          >
+                            Mini Game
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleStory(checkpoint.id_CheckPoint, tripQuestId)
+                            }
+                            className="text-black-500 hover:underline text-sm"
+                          >
+                            Câu chuyện
+                          </button>
+                          <button
+                            onClick={() =>
+                              handleDeleteCheckpoint(
+                                checkpoint.id_CheckPoint,
+                                tripQuestId
+                              )
+                            }
+                            className="text-red-500 hover:underline text-sm"
+                          >
+                            Xoá
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </Draggable>
+                ))}
+                {provided.placeholder}
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center text-gray-500">
-            Không có địa điểm nào.
-          </div>
-        )}
+            )}
+          </Droppable>
+        </DragDropContext>
 
         {/* Nút "Thêm địa điểm"
         <div className="flex justify-end mt-4">

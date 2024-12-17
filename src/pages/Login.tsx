@@ -1,29 +1,53 @@
-// src/pages/Login.tsx
 import React, { useState } from "react";
 import logo from "../assets/images/logo.png";
 import { useDispatch } from "react-redux";
 import { login } from "../redux/authSlice";
 import { AppDispatch } from "../redux/store";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login: React.FC = () => {
   const [phoneOrEmail, setPhoneOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const dispatch = useDispatch<AppDispatch>();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const resultAction = await dispatch(login({ phoneOrEmail, password }));
-      console.log(resultAction); // In ra để kiểm tra kết quả
       if (login.fulfilled.match(resultAction)) {
-        console.log("Đăng nhập thành công:", resultAction.payload);
+        toast.success("Đăng nhập thành công!", {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
       } else {
-        console.error("Đăng nhập không thành công:", resultAction.error.message);
+        toast.error(`Đăng nhập thất bại: tài khoản hoặc mật khẩu không chính xác!`, {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        });
       }
     } catch (error) {
-      console.error("Đã xảy ra lỗi:", error);
+      toast.error("Đăng nhập thất bại: tài khoản hoặc mật khẩu không chính xác!", {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
     }
   };
-  
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -73,6 +97,7 @@ const Login: React.FC = () => {
           </button>
         </form>
       </div>
+      <ToastContainer />
     </div>
   );
 };

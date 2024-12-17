@@ -78,6 +78,27 @@ export const updateIndex = createAsyncThunk(
     }
   }
 );
+export const updateMultipleIndexes = createAsyncThunk(
+  "checkpoints/updateMultipleIndexes",
+  async (
+    updateData: {
+      id_TripQuest: string;
+      newIndex: number[];
+    },
+    { rejectWithValue }
+  ) => {
+    try {
+      console.log("Update Data:", updateData);
+      const response = await apiClient.post(
+        "checkpoints/updateMultipleIndexes",
+        updateData
+      );
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || error.message);
+    }
+  }
+);
 export const updateTripquestStatus = createAsyncThunk(
   "tripquest/updateStatus",
   async (
@@ -148,7 +169,10 @@ const tripquestSlice = createSlice({
       })
       .addCase(updateIndex.pending, (state) => {})
       .addCase(updateIndex.fulfilled, (state, action) => {})
-      .addCase(updateIndex.rejected, (state, action) => {});
+      .addCase(updateIndex.rejected, (state, action) => {})
+      .addCase(updateMultipleIndexes.pending, (state) => {})
+      .addCase(updateMultipleIndexes.fulfilled, (state, action) => {})
+      .addCase(updateMultipleIndexes.rejected, (state, action) => {});
   },
 });
 

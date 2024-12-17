@@ -169,8 +169,6 @@ export const fetchAllCheckpoints = createAsyncThunk<
     );
   }
 });
-
-// Thunk để lấy checkpoints theo idTripQuest
 export const fetchCheckpointsByTripquest = createAsyncThunk<
   Checkpoint[],
   string,
