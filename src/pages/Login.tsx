@@ -18,7 +18,7 @@ const Login: React.FC = () => {
       if (login.fulfilled.match(resultAction)) {
         toast.success("Đăng nhập thành công!", {
           position: "top-right",
-          autoClose: 4001,
+          autoClose: 3000,
           hideProgressBar: false,
           closeOnClick: true,
           pauseOnHover: true,
