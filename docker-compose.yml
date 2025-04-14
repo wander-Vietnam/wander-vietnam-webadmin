@@ -1,11 +1,12 @@
-  services:
-    webadmin:
-      image: tranngoctu512004/webadmin:latest
-      build: .
-      container_name: webadmin
-      restart: always
-      ports:
-        - '4001:4001'
-      volumes:
-        - ./.env:/app/.env        
-        
+version: "3.2"
+
+services:
+  webadmin:
+    image: quockhanh2924/web_admin:latest
+    build: .
+    container_name: web-wander-vn
+    restart: always
+    ports:
+      - "4001:4001"
+    volumes:
+      - ./.env:/app/.env
